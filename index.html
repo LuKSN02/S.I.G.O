@@ -28,6 +28,16 @@
   --win10-hover-strong:rgba(255,190,60,0.28);
   --aero-blue-ghost:rgba(255,190,60,0.18); /* eco do azul de fundo, só que âmbar */
   --ui-font:'Segoe UI','Tahoma',Geneva,Verdana,sans-serif;
+
+  /* ---- casca "Sistema 11" (Fluent, cantos arredondados, acrílico) tingida de âmbar ---- */
+  --win11-radius:10px;
+  --win11-radius-sm:6px;
+  --win11-chrome:rgba(26,21,9,0.78);
+  --win11-chrome-active:rgba(36,28,13,0.86);
+  --win11-taskbar:rgba(16,13,6,0.72);
+  --win11-acrylic-border:rgba(255,190,60,0.22);
+  --win11-hover:rgba(255,190,60,0.14);
+  --win11-hover-strong:rgba(255,190,60,0.26);
 }
 *{box-sizing:border-box;}
 html,body{
@@ -248,7 +258,7 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 .role b{color:var(--amber);}
 
 /* Restricted / lock window */
-#win-restrito .content{background:#050403;}
+#win-restrito .content, #win-restrito2 .content{background:#050403;}
 #lock-screen{text-align:center;padding:10px 0;}
 #lock-screen input{
   background:#000;border:1px solid var(--amber-dim);color:var(--amber);
@@ -261,7 +271,7 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 }
 #lock-screen button:hover{background:var(--amber);}
 #lock-msg{font-size:12px;color:var(--danger);margin-top:8px;min-height:16px;}
-#restrito-content{display:none;}
+#restrito-content, #restrito-content2{display:none;}
 
 /* Mensagens / chat */
 .msg{max-width:80%;margin-bottom:10px;padding:8px 10px;border:1px solid var(--amber-dim);font-size:13px;}
@@ -303,6 +313,7 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
   display:flex;align-items:stretch;
   z-index:600;font-size:13px;
 }
+#taskbar-center{display:flex;align-items:stretch;flex:1;min-width:0;transition:flex .3s ease, margin .3s ease;}
 #start-btn{
   width:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;
   position:relative;
@@ -426,12 +437,104 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 }
 #update-install.error .ui-logo,#update-install.error .ui-caption,#update-install.error .ui-bar-track{opacity:0.35;}
 #update-install.error .ui-error{display:block;}
+#update-install .ui-success{
+  display:none;color:var(--ok);font-family:'Share Tech Mono',monospace;font-size:15px;
+  margin-top:22px;letter-spacing:0.5px;max-width:min(480px,88vw);
+}
+#update-install.success .ui-bar-fill{background:var(--ok);}
+#update-install.success .ui-success{display:block;}
+#update-install.success .ui-logo{color:var(--ok);}
 #update-install .ui-ok{
   display:none;margin-top:20px;padding:8px 22px;background:transparent;color:var(--amber);
   border:1px solid var(--amber-dim);font-family:var(--ui-font);font-size:12px;cursor:pointer;
 }
-#update-install.error .ui-ok{display:inline-block;}
+#update-install.error .ui-ok,#update-install.success .ui-ok{display:inline-block;}
 #update-install .ui-ok:hover{background:var(--win10-hover);}
+#update-install.success .ui-ok{color:var(--ok);border-color:var(--ok);}
+#update-install.success .ui-ok:hover{background:rgba(90,125,74,0.18);}
+
+/* ================= MENU DE CONTEXTO (clique-direito na área de trabalho) ================= */
+#ctx-menu{
+  position:fixed;z-index:970;min-width:200px;
+  background:#17130b;border:1px solid rgba(255,180,0,0.35);
+  box-shadow:0 8px 24px rgba(0,0,0,0.6);
+  display:none;padding:4px 0;font-family:var(--ui-font);font-size:12.5px;
+}
+#ctx-menu.show{display:block;}
+#ctx-menu .ctx-item{padding:7px 16px;cursor:pointer;color:var(--amber);display:flex;align-items:center;gap:8px;}
+#ctx-menu .ctx-item:hover{background:var(--win10-hover);}
+#ctx-menu .ctx-item.disabled{color:var(--amber-dim);opacity:0.5;cursor:default;}
+#ctx-menu .ctx-item.disabled:hover{background:none;}
+#ctx-menu .ctx-sep{height:1px;background:rgba(255,180,0,0.15);margin:4px 0;}
+
+/* ================= CENTRAL DE AÇÕES ================= */
+#tray-action{position:relative;cursor:pointer;font-size:13px;color:var(--amber-dim);display:inline-flex;align-items:center;}
+#tray-action:hover{color:var(--amber);}
+#tray-action-dot{
+  position:absolute;top:-3px;right:-5px;min-width:7px;height:7px;border-radius:50%;
+  background:var(--danger);box-shadow:0 0 5px var(--danger);display:none;
+}
+#tray-action-dot.show{display:block;}
+
+#action-center{
+  position:fixed;right:0;bottom:40px;top:0;width:320px;max-width:88vw;
+  background:#100d07;border-left:1px solid rgba(255,180,0,0.25);
+  box-shadow:-6px 0 24px rgba(0,0,0,0.5);
+  z-index:940;display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .3s ease;
+}
+#action-center.open{transform:translateX(0);}
+#action-center .ac-head{padding:12px 14px;font-family:var(--ui-font);font-size:11px;letter-spacing:1px;color:var(--amber-dim);border-bottom:1px solid rgba(255,180,0,0.12);display:flex;justify-content:space-between;}
+#action-center .ac-clear{cursor:pointer;color:var(--amber-dim);}
+#action-center .ac-clear:hover{color:var(--amber);}
+#action-center .ac-feed{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+#action-center .ac-card{
+  background:#1c1810;border:1px solid rgba(255,180,0,0.18);padding:9px 11px;
+  font-family:var(--ui-font);
+}
+#action-center .ac-card .ac-title{font-size:12px;color:var(--amber);margin-bottom:3px;}
+#action-center .ac-card .ac-time{font-size:10px;color:var(--amber-dim);margin-bottom:4px;}
+#action-center .ac-card .ac-body{font-size:11px;color:#c9bd94;line-height:1.4;}
+#action-center .ac-empty{color:var(--amber-dim);font-size:11.5px;font-family:var(--ui-font);text-align:center;margin-top:20px;}
+#action-center .ac-toggles{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px;border-top:1px solid rgba(255,180,0,0.12);}
+.ac-toggle{
+  background:#1c1810;border:1px solid rgba(255,180,0,0.18);padding:10px 8px;text-align:center;
+  font-family:var(--ui-font);font-size:10.5px;color:var(--amber-dim);cursor:pointer;
+}
+.ac-toggle .g{display:block;font-size:16px;margin-bottom:4px;color:var(--amber-dim);}
+.ac-toggle.on{background:rgba(255,190,60,0.14);border-color:var(--amber);color:var(--amber);}
+.ac-toggle.on .g{color:var(--amber);}
+
+/* ================= NOTIFICAÇÕES-TOAST ================= */
+#toast-stack{
+  position:fixed;right:16px;bottom:52px;z-index:945;
+  display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;
+}
+.toast{
+  width:280px;background:#17130b;border:1px solid rgba(255,180,0,0.3);
+  box-shadow:0 6px 20px rgba(0,0,0,0.5);padding:9px 12px;
+  font-family:var(--ui-font);pointer-events:auto;
+  opacity:0;transform:translateY(10px);
+  animation:toastIn .3s ease forwards, toastOut .3s ease forwards 5.5s;
+}
+.toast .t-title{font-size:11.5px;color:var(--amber);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
+.toast .t-body{font-size:11px;color:var(--amber-dim);line-height:1.4;}
+@keyframes toastIn{to{opacity:1;transform:translateY(0);}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-6px);}}
+
+@media(max-width:640px){
+  #action-center{width:82vw;}
+}
+
+/* ================= TELA OCIOSA ================= */
+#idle-screen{
+  position:fixed;inset:0;background:#000;z-index:996;display:none;
+  align-items:center;justify-content:center;cursor:pointer;
+  font-family:'Share Tech Mono',monospace;color:var(--amber-dim);
+}
+#idle-screen.show{display:flex;}
+#idle-screen .idle-text{font-size:15px;letter-spacing:2px;opacity:0;animation:idleFade 3s ease forwards 1s;text-align:center;line-height:2;}
+@keyframes idleFade{to{opacity:1;}}
 
 /* ================= START MENU — Windows 10 (lista + grade de blocos) ================= */
 #start-menu{
@@ -490,6 +593,63 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
   border-top:1px solid rgba(255,180,0,0.12);background:rgba(0,0,0,0.3);
 }
 #sm-user{font-family:var(--ui-font);font-size:10.5px;color:var(--amber-dim);}
+
+/* ================= CASCA "SISTEMA 11" — aplicada após a atualização completa ================= */
+body.win11 #taskbar{
+  background:var(--win11-taskbar);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-top-color:var(--win11-acrylic-border);
+}
+body.win11 #taskbar-center{flex:0 1 auto;margin:0 auto;}
+body.win11 #taskbar-apps{flex:0 1 auto;}
+body.win11 #start-btn{width:44px;}
+body.win11 #start-orb{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.5px;width:15px;height:15px;}
+body.win11 #start-orb span{border-radius:2px;}
+body.win11 .tbar-app{border-radius:var(--win11-radius-sm);border-bottom:none;margin:4px 0;}
+body.win11 .tbar-app.active{box-shadow:inset 0 -2px 0 var(--amber);}
+body.win11 #show-desktop{display:none;}
+
+body.win11 .window{border-radius:var(--win11-radius);box-shadow:0 10px 34px rgba(0,0,0,0.6);}
+body.win11 .window.active{box-shadow:0 14px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,180,0,0.35);}
+body.win11 .window.maximized{border-radius:0;}
+body.win11 .titlebar{
+  background:var(--win11-chrome);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-radius:var(--win11-radius) var(--win11-radius) 0 0;
+}
+body.win11 .window.maximized .titlebar{border-radius:0;}
+body.win11 .window.active .titlebar{background:var(--win11-chrome-active);}
+body.win11 .tb-btn{border-radius:var(--win11-radius-sm);height:24px;width:38px;margin:4px 3px;}
+body.win11 .tb-btn.close:hover{border-radius:var(--win11-radius-sm);}
+
+body.win11 .icon{border-radius:var(--win11-radius-sm);}
+body.win11 .icon .glyph{border-radius:var(--win11-radius-sm);}
+body.win11 .icon:hover, body.win11 .icon:focus-visible{border-radius:var(--win11-radius-sm);}
+
+body.win11 #start-menu{
+  left:50%;transform:translateX(-50%) translateY(-8px);bottom:48px;
+  border-radius:var(--win11-radius);background:var(--win11-chrome-active);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-color:var(--win11-acrylic-border);
+}
+body.win11 #start-menu .sm-tile{border-radius:var(--win11-radius-sm);}
+body.win11 #start-menu .sm-item{border-radius:var(--win11-radius-sm);}
+body.win11 #start-menu .sm-search{border-radius:var(--win11-radius-sm);}
+body.win11 #start-menu .sm-rail{border-radius:var(--win11-radius) 0 0 var(--win11-radius);}
+
+body.win11 #ctx-menu{border-radius:var(--win11-radius-sm);overflow:hidden;}
+body.win11 #action-center{border-radius:var(--win11-radius);overflow:hidden;backdrop-filter:blur(20px);}
+body.win11 #update-popup{border-radius:var(--win11-radius-sm);overflow:hidden;}
+body.win11 #up-close{border-radius:0;}
+
+body.win11 #tray-update.done{color:var(--ok);}
+body.win11 #tray-update.done:hover{color:var(--ok);}
+body.win11 #tray-update.done #tray-update-dot{display:none;}
+
+/* pequeno selo "11" atrás do cursor do sistema, discreto, no canto do papel de parede */
+body.win11 #desktop::before{
+  content:'SISTEMA 11';position:absolute;bottom:44px;right:10px;
+  font-family:var(--ui-font);font-size:10px;letter-spacing:2px;color:rgba(255,190,60,0.28);
+  pointer-events:none;z-index:6;
+}
 
 @media(max-width:640px){
   .window{width:88vw;}
@@ -664,6 +824,11 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
       <div class="log-entry">
         <b>OPERADOR:</b> Alguém mais está ouvindo isso na frequência 3? Não é um dos nossos.
       </div>
+      <div class="log-entry">
+        <b>BASE:</b> Preciso autorização pra rodar o Protocolo Silêncio nesse turno. Quem assina?<br>
+        <b>CAPITÃ REYES:</b> Não fala isso em canal aberto, Base. Mas tá arquivado — protocolo nº 4477, aberto desde a Expedição 132-D. Registra e encerra a transmissão.<br>
+        <i style="color:var(--amber-dim);">[TRANSMISSÃO ENCERRADA MANUALMENTE PELA BASE]</i>
+      </div>
     </div>
   </div>
 
@@ -796,6 +961,37 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
     </div>
   </div>
 
+  <!-- ===================== ARQUIVO NEGRO (segundo registro trancado) ===================== -->
+  <div class="window win-terminal" id="win-restrito2" style="top:160px;left:260px;width:430px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">⚷</span><span class="tb-title">ARQUIVO CLASSE A — TRANCADO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-restrito2">─</span>
+        <span class="tb-btn max" data-max="win-restrito2">□</span>
+        <span class="tb-btn close" data-close="win-restrito2">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <div id="lock-screen2">
+        <p style="color:var(--danger);">ACESSO NEGADO — CLASSE A REQUERIDA</p>
+        <p style="font-size:12px;color:var(--amber-dim);">Dica: o número deste protocolo foi mencionado numa transmissão de rádio recente.</p>
+        <input type="text" id="lock-input2" placeholder="CÓDIGO DE PROTOCOLO" maxlength="6">
+        <button id="lock-btn2">DECLASSIFICAR</button>
+        <div id="lock-msg2"></div>
+      </div>
+      <div id="restrito-content2">
+        <h3>Registro Confidencial — Protocolo Silêncio nº 4477</h3>
+        <p>Diferente do Protocolo 8112 — aberto sempre que um Nível reage de forma anômala — o Protocolo Silêncio nunca aparece em nenhum relatório de expedição. Ele não trata dos Níveis. Trata dos próprios registros.</p>
+        <p>Toda vez que um Explorador de Campo desaparece sem corpo, sem rastro de rádio, sem nada além de um nome numa lista de escala, o Protocolo Silêncio é quem decide o que acontece com esse nome depois. Na maioria dos casos: reclassificação para "transferência administrativa" ou "baixa voluntária". O arquivo original, com a data real e a causa real, é movido para cá.</p>
+        <hr class="div">
+        <p>Adendo, assinado apenas com iniciais — <b>C.R.</b>:</p>
+        <p style="color:var(--amber);">"Não escondemos os desaparecimentos porque tenhamos vergonha deles. Escondemos porque, toda vez que uma família de fora insiste em procurar, o Nível relacionado àquele explorador muda de layout dentro de 72 horas. É como se ele soubesse que estão vindo buscar."</p>
+        <p>Contagem interna, não publicada em nenhum relatório oficial de recrutamento: <b>214 nomes</b> arquivados sob o Protocolo Silêncio desde a fundação do S.I.G.O. Nenhum deles consta como "morto". Todos constam, oficialmente, como "em trânsito".</p>
+        <p style="font-size:12px;color:var(--amber-dim);">Este registro não deve ser mencionado, nem mesmo entre Capitães de Esquadrão, fora de reunião fechada do Conselho.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== CONSELHEIRO ===================== -->
   <div class="window win-paper" id="win-conselheiro" style="top:60px;left:520px;">
     <div class="titlebar">
@@ -836,6 +1032,10 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
       Capta frequências que, segundo engenharia de base, "não deveriam existir no espectro conhecido". Uso restrito a Operadores Classe C ou superior.</div>
       <div class="item"><span class="name">Chave Sem Fechadura</span> <span class="tag bad">CLASSE VERMELHA</span><br>
       Recuperada em três expedições distintas, sempre no mesmo bolso do mesmo modelo de uniforme — nunca pertencente ao mesmo explorador duas vezes. Nenhuma fechadura correspondente jamais foi encontrada.</div>
+      <div class="item"><span class="name">Lanterna de Manivela "Modelo Antigo"</span> <span class="tag ok">CLASSE VERDE</span><br>
+      Funciona normalmente, mas o feixe de luz nunca ilumina o que está diretamente à frente — sempre um ou dois metros deslocado, na direção de onde algo acabou de sair de vista.</div>
+      <div class="item"><span class="name">Fita Cassete Sem Rótulo</span> <span class="tag bad">CLASSE PRETA</span><br>
+      Reproduz sempre a última conversa ouvida por quem a carrega, mesmo que ninguém tenha gravado nada. Recomenda-se não carregar por mais de um turno de expedição.</div>
     </div>
   </div>
 
@@ -856,6 +1056,8 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
       <div class="msg right"><div class="who">OPERADOR_DIAS</div>já enterrou. protocolo 8112, igual sempre.</div>
       <div class="msg left"><div class="who">OPERADOR_KAY</div>nem vou perguntar como você sabe esse número de cor.</div>
       <div class="msg right"><div class="who">OPERADOR_DIAS</div>melhor não perguntar mesmo.</div>
+      <div class="msg left"><div class="who">OPERADOR_KAY</div>tem alguém digitando aqui agora e não sou eu.</div>
+      <div class="msg right"><div class="who">OPERADOR_DIAS</div>fecha essa janela. agora.</div>
     </div>
   </div>
 
@@ -967,6 +1169,8 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
       <div class="role"><b>Caçadores (classe hostil-ativa)</b> — perseguem por som. Protocolo padrão: silêncio absoluto, movimento lento, nunca correr em linha reta.</div>
       <div class="role"><b>Rostos Sorridentes (classe hostil-passiva)</b> — imitam vozes conhecidas para atrair. Protocolo: nunca responder a chamados não confirmados por rádio.</div>
       <div class="role"><b>Andarilhos de Corredor (classe indeterminada)</b> — comportamento não hostil registrado, mas nenhum explorador relatou uma segunda visão da mesma entidade.</div>
+      <div class="role"><b>O Vizinho Silencioso (classe hostil-condicional)</b> — só reage se for observado por mais de 3 segundos seguidos. Protocolo: olhar de relance, nunca fixar o olhar, seguir andando.</div>
+      <div class="role"><b>Coro do Duto (classe indeterminada)</b> — vozes sobrepostas ouvidas através de dutos de ventilação do Nível 2, sempre repetindo nomes. Nenhum nome ouvido até hoje correspondeu a um explorador desaparecido — o que preocupa mais do que tranquiliza.</div>
       <hr class="div">
       <p style="font-size:12px;">Entradas classificadas acima do Nível C de acesso foram removidas deste terminal por diretriz do Conselho.</p>
       <p class="stamp">CATÁLOGO INCOMPLETO</p>
@@ -1006,16 +1210,116 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
     </div>
     <div class="content">
       <h3>Sobre este terminal</h3>
-      <p><b>Sistema:</b> S.I.G.O. OS v2.6 — Terminal de Campo</p>
-      <p><b>Build:</b> ECO-7.2.6.118</p>
+      <p><b>Sistema:</b> <span id="config-sys-version">S.I.G.O. OS v2.6 — Terminal de Campo</span></p>
+      <p><b>Build:</b> <span id="config-sys-build">ECO-7.2.6.118</span></p>
       <p><b>Nível de acesso atual:</b> OPERACIONAL</p>
       <hr class="div">
       <h3>Atualizações</h3>
-      <p>Uma nova versão do sistema está disponível para este terminal.</p>
+      <p id="config-update-desc">Uma nova versão do sistema está disponível para este terminal.</p>
       <div style="margin-top:8px;">
         <span class="stamp" style="border-color:var(--amber);color:var(--amber);cursor:pointer;" id="config-check-update">VERIFICAR ATUALIZAÇÕES</span>
       </div>
       <p style="font-size:12px;color:var(--amber-dim);margin-top:14px;">[downgrade para versões anteriores não é suportado por este terminal]</p>
+    </div>
+  </div>
+
+  <!-- ===================== LIXEIRA ===================== -->
+  <div class="window win-terminal" id="win-lixeira" style="top:70px;left:150px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">🗑</span><span class="tb-title">LIXEIRA.sys — ITENS EXCLUÍDOS</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-lixeira">─</span>
+        <span class="tb-btn max" data-max="win-lixeira">□</span>
+        <span class="tb-btn close" data-close="win-lixeira">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>3 ITENS — EXCLUSÃO PENDENTE HÁ 118 DIAS</h3>
+      <p>ficha_explorador_delta_03.dat — excluído por: <i>ADMINISTRADOR DESCONHECIDO</i></p>
+      <p>gravacao_radio_canal7_backup.wav — excluído por: <i>VOCÊ</i> (você não se lembra de ter feito isso)</p>
+      <p>relatorio_incidente_nivel_11.pdf — marcado para exclusão automática em: <span style="color:var(--danger);">00:00:00</span></p>
+      <hr class="div">
+      <p style="font-size:12px;color:var(--amber-dim);">[a restauração de itens excluídos requer autorização de Classe A. Nenhuma solicitação de restauração foi aprovada nos últimos 6 meses.]</p>
+    </div>
+  </div>
+
+  <!-- ===================== CÂMERAS ===================== -->
+  <div class="window win-terminal" id="win-cameras" style="top:100px;left:200px;width:440px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">◎</span><span class="tb-title">CÂMERAS.exe — MONITORAMENTO AO VIVO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-cameras">─</span>
+        <span class="tb-btn max" data-max="win-cameras">□</span>
+        <span class="tb-btn close" data-close="win-cameras">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>FEED — 4 CÂMERAS ATIVAS</h3>
+      <p>CAM-01 [Corredor de Entrada] — <span style="color:var(--ok);">SINAL OK</span> — sem movimento nos últimos 40min.</p>
+      <p>CAM-02 [Almoxarifado] — <span style="color:var(--ok);">SINAL OK</span> — movimento detectado às 03:12, sem operador escalado no horário.</p>
+      <p>CAM-03 [Corredor de Manutenção] — <span style="color:var(--danger);">SINAL PERDIDO</span> — última imagem há 6h. Equipe técnica "a caminho".</p>
+      <p>CAM-04 [Portão do Nível 0] — <span style="color:var(--ok);">SINAL OK</span> — <span id="cam04-live">contagem: 0 figuras visíveis</span></p>
+      <hr class="div">
+      <p style="font-size:12px;color:var(--amber-dim);">[gravações têm retenção de 72h. Solicitações de acesso a arquivos antigos devem ser feitas por escrito]</p>
+    </div>
+  </div>
+
+  <!-- ===================== CONTATOS ===================== -->
+  <div class="window win-paper" id="win-contatos" style="top:120px;left:260px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">☎</span><span class="tb-title">CONTATOS.tel — LISTA RÁPIDA</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-contatos">─</span>
+        <span class="tb-btn max" data-max="win-contatos">□</span>
+        <span class="tb-btn close" data-close="win-contatos">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>Contatos de Emergência</h3>
+      <div class="role"><b>Base Central — canal 1</b><br>Resposta média: imediata a 20 minutos.</div>
+      <div class="role" style="text-decoration:line-through;opacity:0.6;"><b>Equipe Delta — canal 7</b><br>Sem resposta há 12 dias. Mantido na lista por protocolo.</div>
+      <div class="role"><b>Suporte Psicológico — canal 3</b><br>Disponível em qualquer horário. Uso reportado: abaixo do esperado.</div>
+      <div class="role"><b>Conselho Diretor — linha direta</b><br>Requer autorização prévia. Nenhuma chamada registrada nos últimos 2 anos.</div>
+      <hr class="div">
+      <p style="font-size:12px;">Cartaz afixado ao lado do terminal: "SE VOCÊ OUVIR SUA PRÓPRIA VOZ NO RÁDIO, NÃO RESPONDA."</p>
+    </div>
+  </div>
+
+  <!-- ===================== ACHADOS E PERDIDOS ===================== -->
+  <div class="window win-paper" id="win-achados" style="top:90px;left:320px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">⚑</span><span class="tb-title">ACHADOS_E_PERDIDOS.dat</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-achados">─</span>
+        <span class="tb-btn max" data-max="win-achados">□</span>
+        <span class="tb-btn close" data-close="win-achados">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>Itens Pessoais Recuperados</h3>
+      <div class="role"><b>Item #041</b> — Crachá de identificação, nome apagado pelo desgaste. Classe D. Não reclamado.</div>
+      <div class="role"><b>Item #052</b> — Carta manuscrita, endereçada a "quem encontrar isso primeiro". Conteúdo arquivado, não catalogado publicamente.</div>
+      <div class="role"><b>Item #067</b> — Rádio de campo, ainda ligado, sintonizado em canal sem registro na rede.</div>
+      <div class="role"><b>Item #071</b> — Par de botas, tamanho compatível com nenhum operador ativo no momento do achado.</div>
+      <hr class="div">
+      <p style="font-size:12px;">Política de descarte: itens não reclamados em 90 dias são incinerados. Item #052 está retido há 340 dias.</p>
+    </div>
+  </div>
+
+  <!-- ===================== ??????.exe — JANELA ESCONDIDA (easter egg) ===================== -->
+  <div class="window win-terminal" id="win-noclip" style="top:80px;left:260px;width:340px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">?</span><span class="tb-title">??????.exe — ACESSO NÃO AUTORIZADO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-noclip">─</span>
+        <span class="tb-btn max" data-max="win-noclip">□</span>
+        <span class="tb-btn close" data-close="win-noclip">✕</span>
+      </div>
+    </div>
+    <div class="content" style="padding:10px 12px;">
+      <p style="font-size:11.5px;color:var(--amber-dim);margin:0 0 8px;">use as setas do teclado. sobreviva o quanto conseguir.</p>
+      <canvas id="noclip-canvas" width="300" height="220" style="background:#050402;display:block;border:1px solid rgba(255,180,0,0.3);"></canvas>
+      <p id="noclip-status" style="font-size:12px;margin-top:8px;">tempo: 0.0s</p>
     </div>
   </div>
 
@@ -1040,15 +1344,18 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
   </div>
 
   <div id="taskbar">
-    <div id="start-btn"><div id="start-orb"><span></span><span></span><span></span><span></span></div></div>
-    <div id="taskbar-sep"></div>
-    <div id="tb-search"><span class="ico">⌕</span><span>Pesquisar</span></div>
-    <div id="tb-taskview" title="Visão de Tarefas">▭</div>
-    <div id="taskbar-apps"></div>
+    <div id="taskbar-center">
+      <div id="start-btn"><div id="start-orb"><span></span><span></span><span></span><span></span></div></div>
+      <div id="taskbar-sep"></div>
+      <div id="tb-search"><span class="ico">⌕</span><span>Pesquisar</span></div>
+      <div id="tb-taskview" title="Visão de Tarefas">▭</div>
+      <div id="taskbar-apps"></div>
+    </div>
     <div id="status">
       <span class="jitter">SINAL: <span class="sig" id="sig-val">INSTÁVEL</span></span>
       <span>ESTABILIDADE: <span id="stab-val">62%</span></span>
       <span id="tray-update" title="Atualizações disponíveis">⟳<span id="tray-update-dot"></span></span>
+      <span id="tray-action" title="Central de Ações">☰<span id="tray-action-dot"></span></span>
       <span id="clock">00:00:00</span>
     </div>
     <div id="show-desktop" title="Mostrar área de trabalho"></div>
@@ -1075,11 +1382,65 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
     <div class="ui-bar-track"><div class="ui-bar-fill" id="ui-bar-fill"></div></div>
     <div class="ui-log" id="ui-log"></div>
     <div class="ui-error" id="ui-error">FALHA NA ATUALIZAÇÃO — ESTE NÍVEL NÃO PERMITE SAÍDA.<br>Revertendo para S.I.G.O. OS v2.6...</div>
+    <div class="ui-success" id="ui-success">ATUALIZAÇÃO CONCLUÍDA — BEM-VINDO AO SISTEMA 11.<br><span style="font-size:12px;opacity:0.75;">curioso: a permissão de saída foi concedida pela primeira vez. o sinal, no entanto, está mais estável do que nunca.</span></div>
     <button class="ui-ok" id="ui-ok">VOLTAR AO TERMINAL</button>
+  </div>
+
+  <!-- ===================== MENU DE CONTEXTO ===================== -->
+  <div id="ctx-menu">
+    <div class="ctx-item" id="ctx-refresh"><span>⟳</span>Atualizar</div>
+    <div class="ctx-item" id="ctx-view"><span>▦</span>Exibir ícones</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" id="ctx-config"><span>⚙</span>Configurações</div>
+    <div class="ctx-item disabled"><span>➕</span>Novo item (bloqueado por política)</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item disabled" id="ctx-props"><span>ⓘ</span>Propriedades</div>
+  </div>
+
+  <!-- ===================== CENTRAL DE AÇÕES ===================== -->
+  <div id="action-center">
+    <div class="ac-head"><span>CENTRAL DE AÇÕES</span><span class="ac-clear" id="ac-clear">limpar tudo</span></div>
+    <div class="ac-feed" id="ac-feed">
+      <div class="ac-empty" id="ac-empty">sem notificações no momento</div>
+    </div>
+    <div class="ac-toggles">
+      <div class="ac-toggle on" id="tg-som" data-label-on="ZUMBIDO: LIGADO" data-label-off="ZUMBIDO: DESLIGADO"><span class="g">🔊</span>ZUMBIDO: LIGADO</div>
+      <div class="ac-toggle" id="tg-scanlines" data-label-on="SCANLINES: LIGADO" data-label-off="SCANLINES: DESLIGADO"><span class="g">▤</span>SCANLINES: DESLIGADO</div>
+      <div class="ac-toggle on" id="tg-radio" data-label-on="RÁDIO BASE: ATIVO" data-label-off="RÁDIO BASE: MUDO"><span class="g">◉</span>RÁDIO BASE: ATIVO</div>
+      <div class="ac-toggle" id="tg-modo" data-label-on="MODO CAMPO: ON" data-label-off="MODO CAMPO: OFF"><span class="g">⌖</span>MODO CAMPO: OFF</div>
+    </div>
+  </div>
+
+  <div id="toast-stack"></div>
+
+  <!-- ===================== TELA OCIOSA ===================== -->
+  <div id="idle-screen">
+    <div class="idle-text">VOCÊ AINDA ESTÁ AÍ?<br><span style="font-size:11px;">clique em qualquer lugar para continuar</span></div>
   </div>
 </div>
 
 <script>
+// ---------- ESTADO DE MIGRAÇÃO: SISTEMA 11 (persiste entre sessões — este Nível não permite reverter) ----------
+let systemUpgraded = localStorage.getItem('sigo-win11')==='1';
+function applyWin11Visuals(){
+  document.body.classList.add('win11');
+  const trayUp = document.getElementById('tray-update');
+  if(trayUp){
+    trayUp.classList.add('done');
+    trayUp.childNodes[0].textContent = '✓';
+    trayUp.title = 'Sistema 11 — atualizado';
+  }
+  const smHead = document.querySelector('#start-menu .sm-head span');
+  if(smHead) smHead.textContent = 'S.I.G.O. OS 11';
+  const sysLine = document.getElementById('config-sys-version');
+  if(sysLine) sysLine.textContent = 'S.I.G.O. OS 11 — Terminal de Campo';
+  const buildLine = document.getElementById('config-sys-build');
+  if(buildLine) buildLine.textContent = 'ECO-11.0.1.exe';
+  const updDesc = document.getElementById('config-update-desc');
+  if(updDesc) updDesc.textContent = 'Este terminal já está na versão mais recente. Nenhuma atualização adicional foi listada — ainda.';
+}
+if(systemUpgraded){ applyWin11Visuals(); }
+
 // ---------- LISTA DE PROGRAMAS (ícones, menu iniciar, barra de tarefas) ----------
 const APPS = [
   {id:'win-terminal',   label:'S.I.G.O_TERMINAL',  glyph:'▣'},
@@ -1090,6 +1451,7 @@ const APPS = [
   {id:'win-niveis',     label:'NÍVEIS.map',         glyph:'▦'},
   {id:'win-teorias',    label:'FÓRUM_NC',           glyph:'❖'},
   {id:'win-restrito',   label:'RESTRITO.???',       glyph:'✕'},
+  {id:'win-restrito2',  label:'ARQUIVO_NEGRO.???',  glyph:'⚷'},
   {id:'win-conselheiro',label:'CONSELHEIRO.dat',    glyph:'☖'},
   {id:'win-objetos',    label:'OBJETOS.inv',        glyph:'◇'},
   {id:'win-mensagens',  label:'MENSAGENS.msg',      glyph:'✉'},
@@ -1100,10 +1462,14 @@ const APPS = [
   {id:'win-entidades',  label:'ENTIDADES.cls',      glyph:'☠'},
   {id:'win-mercado',    label:'MERCADO_NEGRO.exe',  glyph:'⚖'},
   {id:'win-config',     label:'CONFIGURAÇÕES',      glyph:'⚙'},
+  {id:'win-lixeira',    label:'LIXEIRA.sys',        glyph:'🗑'},
+  {id:'win-cameras',    label:'CÂMERAS.exe',        glyph:'◎'},
+  {id:'win-contatos',   label:'CONTATOS.tel',       glyph:'☎'},
+  {id:'win-achados',    label:'ACHADOS_E_PERDIDOS.dat', glyph:'⚑'},
 ];
 
 // ---------- BOOT SEQUENCE ----------
-const bootLines = [
+const bootLinesV10 = [
 "INICIALIZANDO TERMINAL DE CAMPO S.I.G.O...",
 "VERIFICANDO INTEGRIDADE DO SINAL...........[OK]",
 "CARREGANDO PROTOCOLOS DE SEGURANÇA..........[OK]",
@@ -1114,6 +1480,23 @@ const bootLines = [
 "",
 "ACESSO CONCEDIDO.",
 ];
+const bootLinesV11 = [
+"INICIALIZANDO TERMINAL DE CAMPO S.I.G.O — SISTEMA 11...",
+"VERIFICANDO INTEGRIDADE DO SINAL...........[OK]",
+"CARREGANDO PROTOCOLOS DE SEGURANÇA..........[OK]",
+"SINCRONIZANDO COM BASE CENTRAL..............[ESTÁVEL]",
+"",
+"AVISO: flutuações de realidade detectadas nas proximidades.",
+"AVISO: mantenha a calma. Continue andando.",
+"NOTA: nenhuma saída foi registrada desde a migração.",
+"",
+"ACESSO CONCEDIDO.",
+];
+const bootLines = systemUpgraded ? bootLinesV11 : bootLinesV10;
+if(systemUpgraded){
+  const bc = document.getElementById('boot-caption');
+  if(bc) bc.textContent = 'S . I . G . O .   F I E L D   O S   1 1';
+}
 const bootEl = document.getElementById('boot-text');
 let li=0, ci=0;
 function typeBoot(){
@@ -1399,6 +1782,23 @@ document.getElementById('lock-input').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') document.getElementById('lock-btn').click();
 });
 
+// ---------- ARQUIVO NEGRO (segundo registro trancado) ----------
+document.getElementById('lock-btn2').addEventListener('click', ()=>{
+  const val = document.getElementById('lock-input2').value.trim();
+  const msg = document.getElementById('lock-msg2');
+  if(val === '4477'){
+    document.getElementById('lock-screen2').style.display='none';
+    document.getElementById('restrito-content2').style.display='block';
+  } else {
+    msg.textContent = 'CÓDIGO INVÁLIDO — TENTATIVA REGISTRADA';
+    document.getElementById('win-restrito2').style.transform = 'translateX(2px)';
+    setTimeout(()=>{ document.getElementById('win-restrito2').style.transform=''; }, 120);
+  }
+});
+document.getElementById('lock-input2').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('lock-btn2').click();
+});
+
 // ---------- MAPA INTERATIVO ----------
 const mapaDescs = {
   n0:"NÍVEL 0 — Ponto de entrada padrão. Conexão estável com todos os Níveis mapeados.",
@@ -1445,6 +1845,7 @@ function startUpCountdown(){
 }
 
 function showUpdatePopup(){
+  if(systemUpgraded) return; // já migrado — este aviso não tem mais motivo para existir
   upAppearances++;
   updatePopup.classList.toggle('urgent', upAppearances>1);
   updatePopup.classList.add('show');
@@ -1456,6 +1857,7 @@ function hideUpdatePopup(){
 }
 
 document.getElementById('tray-update').addEventListener('click', ()=>{
+  if(systemUpgraded){ pushToast('Sistema', 'Nenhuma atualização pendente. Versão atual: SISTEMA 11.'); return; }
   if(updatePopup.classList.contains('show')) hideUpdatePopup();
   else showUpdatePopup();
 });
@@ -1472,18 +1874,21 @@ document.getElementById('up-now').addEventListener('click', ()=>{
   startInstall();
 });
 document.getElementById('config-check-update').addEventListener('click', ()=>{
-  showUpdatePopup();
+  if(systemUpgraded) pushToast('Sistema', 'Nenhuma atualização pendente. Versão atual: SISTEMA 11.');
+  else showUpdatePopup();
 });
 
 function scheduleReappear(){
+  if(systemUpgraded) return;
   setTimeout(()=>{ if(document.getElementById('desktop').classList.contains('active')) showUpdatePopup(); }, 35000 + Math.random()*15000);
 }
 
-// primeira aparição, pouco depois do boot
+// primeira aparição, pouco depois do boot (só se ainda não migrou para o Sistema 11)
 setTimeout(()=>{ showUpdatePopup(); }, 9000);
 
-// ---------- TELA DE INSTALAÇÃO FALSA ----------
-const installLines = [
+// ---------- TELA DE INSTALAÇÃO — SISTEMA 11 ----------
+// primeira tentativa: falha dramática, como sempre aconteceu neste Nível.
+const installLinesFail = [
   "Preparando pacotes de atualização...........[OK]",
   "Fazendo backup dos protocolos atuais........[OK]",
   "Substituindo interface por SISTEMA 11.......[EM ANDAMENTO]",
@@ -1491,36 +1896,389 @@ const installLines = [
   "Migrando registros de NÍVEL 0...............[INSTÁVEL]",
   "Verificando permissão de saída do Nível.....[NEGADA]",
 ];
+// segunda tentativa em diante: a migração completa é concluída de verdade.
+const installLinesSuccess = [
+  "Preparando pacotes de atualização...........[OK]",
+  "Fazendo backup dos protocolos atuais........[OK]",
+  "Substituindo interface por SISTEMA 11.......[OK]",
+  "Realinhando corredores para o novo padrão...[OK]",
+  "Migrando registros do NÍVEL 0................[OK]",
+  "Recalibrando iluminação fluorescente.........[OK]",
+  "Verificando permissão de saída do Nível......CONCEDIDA",
+  "Sincronizando com o NÍVEL 11.................[OK]",
+  "Finalizando instalação.......................[OK]",
+];
+let installAttempts = parseInt(localStorage.getItem('sigo-install-attempts')||'0', 10);
+
 function startInstall(){
   const overlay = document.getElementById('update-install');
   const fill = document.getElementById('ui-bar-fill');
   const log = document.getElementById('ui-log');
-  overlay.classList.remove('error');
+  overlay.classList.remove('error','success');
   overlay.classList.add('show');
   log.textContent='';
   fill.style.width='0%';
   requestAnimationFrame(()=>{ fill.style.width='100%'; });
 
+  installAttempts++;
+  localStorage.setItem('sigo-install-attempts', String(installAttempts));
+  const willSucceed = systemUpgraded || installAttempts>=2;
+  const lines = willSucceed ? installLinesSuccess : installLinesFail;
+  fill.style.transitionDuration = willSucceed ? '4.6s' : '3.6s';
+
   let idx=0;
   const logTimer = setInterval(()=>{
-    if(idx>=installLines.length){ clearInterval(logTimer); return; }
-    log.textContent += (idx>0?'\n':'') + installLines[idx];
+    if(idx>=lines.length){ clearInterval(logTimer); return; }
+    log.textContent += (idx>0?'\n':'') + lines[idx];
     idx++;
   }, 560);
 
   setTimeout(()=>{
     clearInterval(logTimer);
-    overlay.classList.add('error');
+    if(willSucceed){
+      completeUpgrade();
+      overlay.classList.add('success');
+    } else {
+      overlay.classList.add('error');
+    }
     document.getElementById('flicker').style.animation='none';
     void document.getElementById('flicker').offsetWidth;
     document.getElementById('flicker').style.animation='flickerFx 0.4s steps(2) 3';
-  }, 3800);
+  }, willSucceed ? 4800 : 3800);
 }
+
+// aplica a casca visual do Sistema 11 em todo o terminal (e persiste, o Nível não deixa reverter)
+function completeUpgrade(){
+  const wasUpgraded = systemUpgraded;
+  systemUpgraded = true;
+  localStorage.setItem('sigo-win11','1');
+  applyWin11Visuals();
+  updatePopup.classList.remove('show','urgent');
+  clearInterval(upCountdownTimer);
+  if(!wasUpgraded) pushToast('Sistema 11', 'Migração concluída. Todos os módulos foram realinhados ao novo padrão.');
+}
+
 document.getElementById('ui-ok').addEventListener('click', ()=>{
-  document.getElementById('update-install').classList.remove('show');
-  document.getElementById('update-install').classList.remove('error');
-  scheduleReappear();
+  document.getElementById('update-install').classList.remove('show','error','success');
+  if(!systemUpgraded) scheduleReappear();
 });
+
+// ---------- MENU DE CONTEXTO (clique-direito) ----------
+const ctxMenu = document.getElementById('ctx-menu');
+document.getElementById('desktop').addEventListener('contextmenu', (e)=>{
+  if(e.target.closest('.window') || e.target.closest('#taskbar') || e.target.closest('#start-menu')) return;
+  e.preventDefault();
+  const mw = 210, mh = 200;
+  const x = Math.min(e.clientX, window.innerWidth - mw - 8);
+  const y = Math.min(e.clientY, window.innerHeight - mh - 8);
+  ctxMenu.style.left = x+'px';
+  ctxMenu.style.top = y+'px';
+  ctxMenu.classList.add('show');
+});
+document.addEventListener('click', ()=>ctxMenu.classList.remove('show'));
+document.getElementById('ctx-refresh').addEventListener('click', ()=>{
+  pushToast('Sistema', 'Área de trabalho atualizada.');
+  const fl = document.getElementById('flicker');
+  fl.style.animation='none'; void fl.offsetWidth; fl.style.animation='flickerFx 0.5s steps(2) 2';
+});
+document.getElementById('ctx-view').addEventListener('click', ()=>{
+  document.getElementById('icons').style.display = document.getElementById('icons').style.display==='none' ? 'flex' : 'none';
+});
+document.getElementById('ctx-config').addEventListener('click', ()=> openWin('win-config'));
+
+// ---------- CENTRAL DE AÇÕES ----------
+const actionCenter = document.getElementById('action-center');
+const acFeed = document.getElementById('ac-feed');
+const acEmpty = document.getElementById('ac-empty');
+const trayActionDot = document.getElementById('tray-action-dot');
+let acUnread = 0;
+
+document.getElementById('tray-action').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  actionCenter.classList.toggle('open');
+  if(actionCenter.classList.contains('open')){ acUnread=0; trayActionDot.classList.remove('show'); }
+});
+document.addEventListener('click', (e)=>{
+  if(!actionCenter.contains(e.target) && !document.getElementById('tray-action').contains(e.target)){
+    actionCenter.classList.remove('open');
+  }
+});
+document.getElementById('ac-clear').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  acFeed.querySelectorAll('.ac-card').forEach(c=>c.remove());
+  acEmpty.style.display='block';
+});
+
+function pushNotification(title, body){
+  acEmpty.style.display='none';
+  const card = document.createElement('div');
+  card.className='ac-card';
+  const now = new Date().toLocaleTimeString('pt-BR');
+  card.innerHTML = `<div class="ac-title">${title}</div><div class="ac-time">${now}</div><div class="ac-body">${body}</div>`;
+  acFeed.prepend(card);
+  if(!actionCenter.classList.contains('open')){ acUnread++; trayActionDot.classList.add('show'); }
+}
+
+function pushToast(title, body){
+  const stack = document.getElementById('toast-stack');
+  const t = document.createElement('div');
+  t.className='toast';
+  t.innerHTML = `<div class="t-title">${title}</div><div class="t-body">${body}</div>`;
+  stack.appendChild(t);
+  setTimeout(()=> t.remove(), 6000);
+  pushNotification(title, body);
+}
+
+// alterna estado de um toggle da central de ações
+document.querySelectorAll('.ac-toggle').forEach(tg=>{
+  tg.addEventListener('click', ()=>{
+    tg.classList.toggle('on');
+    const on = tg.classList.contains('on');
+    const glyph = tg.querySelector('.g').outerHTML;
+    tg.innerHTML = glyph + (on ? tg.dataset.labelOn : tg.dataset.labelOff);
+    playClick();
+  });
+});
+document.getElementById('tg-som').addEventListener('click', ()=>{
+  setHumVolume(document.getElementById('tg-som').classList.contains('on'));
+});
+document.getElementById('tg-scanlines').addEventListener('click', ()=>{
+  document.getElementById('scanlines').style.display =
+    document.getElementById('scanlines').style.display==='none' ? 'block' : 'none';
+});
+
+// ---------- EVENTOS ALEATÓRIOS DE AMBIENTE ----------
+const ambientEvents = [
+  ["Sensor de movimento", "Movimento registrado no Corredor de Manutenção. Nenhuma equipe escalada para a área."],
+  ["Rádio", "Rajada de estática no canal 7. Duração: 4 segundos."],
+  ["Sinal", "Perda momentânea de sincronismo com a Base Central."],
+  ["CÂMERAS.exe", "CAM-02 reportou uma figura parada por 12 segundos. Sem correspondência no cadastro de operadores."],
+  ["Sistema", "Um arquivo foi acessado por um usuário não identificado."],
+  ["Rádio", "Voz não reconhecida perguntou por você pelo nome no canal aberto."],
+  ["Sensor de temperatura", "Queda de 6°C registrada no Corredor Leste em menos de um minuto."],
+  ["CÂMERAS.exe", "CAM-07 perdeu sinal por 9 segundos. Ao retornar, o mobiliário do quadro estava em outra posição."],
+  ["Rede interna", "Um novo dispositivo foi conectado à rede local do S.I.G.O. Nenhum registro de autorização encontrado."],
+  ["Rádio", "Contagem regressiva não identificada foi ouvida no canal 3, terminando em silêncio."],
+  ["Sistema", "O log de atividade deste terminal foi reordenado sem intervenção do operador."],
+  ["Manutenção", "Aviso automático: o zumbido das luzes fluorescentes está fora do padrão registrado para este Nível."],
+  ["Contagem de pessoal", "Uma equipe reportou entrada de 4 exploradores. A saída registrou apenas 3."],
+  ["Sensor de porta", "Porta da sala de arquivos detectada aberta. Nenhum operador autorizado nas proximidades."],
+  ["Sistema", "Um documento marcado como '???' apareceu na pasta ACHADOS_E_PERDIDOS.dat sem origem conhecida."],
+  ["Rádio", "Um operador reportou ecoar sua própria voz no canal aberto, com um segundo de atraso."],
+];
+// eventos que só aparecem depois que o terminal migra para o Sistema 11 — o upgrade "funcionou", mas algo ficou diferente
+const ambientEventsWin11 = [
+  ["Widgets", "O painel de Widgets do Sistema 11 exibe uma previsão do tempo para um Nível que não consta no mapa."],
+  ["Snap Layouts", "O recurso de organização de janelas sugeriu um encaixe para uma janela que não está aberta."],
+  ["Sistema 11", "Verificação de integridade concluída: 100%. Nenhum problema encontrado. Isso, por si só, foi assinalado como incomum."],
+  ["Central de Ações", "Uma notificação apareceu, foi lida e desapareceu antes que qualquer operador a tocasse."],
+  ["Iniciar", "O menu Iniciar recomendou reabrir um arquivo que nunca foi criado neste terminal."],
+  ["Sistema 11", "Sinal reportado como ESTÁVEL há 6 horas consecutivas. Sem precedentes desde o Ano Zero."],
+];
+setInterval(()=>{
+  if(!document.getElementById('desktop').classList.contains('active')) return;
+  const pool = systemUpgraded ? ambientEvents.concat(ambientEventsWin11) : ambientEvents;
+  const ev = pool[Math.floor(Math.random()*pool.length)];
+  pushToast(ev[0], ev[1]);
+  if(ev[0]==='Rádio') playStatic(0.5);
+}, 42000 + Math.random()*20000);
+
+// pequena variação no feed de câmeras
+const cam04States = ["contagem: 0 figuras visíveis","contagem: 1 figura visível — parada","contagem: 0 figuras visíveis","contagem: 1 figura visível — não presente no frame anterior"];
+setInterval(()=>{
+  const el = document.getElementById('cam04-live');
+  if(el) el.textContent = cam04States[Math.floor(Math.random()*cam04States.length)];
+}, 6000);
+
+// ---------- TELA OCIOSA ----------
+const idleScreen = document.getElementById('idle-screen');
+let lastActivity = Date.now();
+['mousemove','mousedown','keydown','touchstart','scroll'].forEach(evt=>{
+  document.addEventListener(evt, ()=>{ lastActivity = Date.now(); });
+});
+setInterval(()=>{
+  if(!document.getElementById('desktop').classList.contains('active')) return;
+  if(document.getElementById('update-install').classList.contains('show')) return;
+  if(Date.now() - lastActivity > 90000 && !idleScreen.classList.contains('show')){
+    idleScreen.classList.add('show');
+  }
+}, 4000);
+idleScreen.addEventListener('click', ()=>{
+  idleScreen.classList.remove('show');
+  lastActivity = Date.now();
+});
+
+// ---------- MOTOR DE ÁUDIO (zumbido ambiente, cliques, estática) ----------
+let actx=null, humOsc=null, humGain=null, humLfo=null, soundOn=true, audioReady=false;
+function ensureAudio(){
+  if(!actx){
+    try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+  }
+  if(actx.state==='suspended') actx.resume();
+  if(!audioReady){ audioReady=true; startHum(); }
+}
+function startHum(){
+  if(!actx || humOsc) return;
+  humGain = actx.createGain();
+  humGain.gain.value = soundOn ? 0.018 : 0;
+  humGain.connect(actx.destination);
+  humOsc = actx.createOscillator();
+  humOsc.type='sine';
+  humOsc.frequency.value=118;
+  humOsc.connect(humGain);
+  humOsc.start();
+  humLfo = actx.createOscillator();
+  humLfo.frequency.value=5.5;
+  const lfoGain = actx.createGain();
+  lfoGain.gain.value=0.006;
+  humLfo.connect(lfoGain);
+  lfoGain.connect(humGain.gain);
+  humLfo.start();
+}
+function setHumVolume(on){
+  soundOn = on;
+  if(humGain) humGain.gain.value = on ? 0.018 : 0;
+}
+function playClick(){
+  if(!actx || !soundOn) return;
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type='square'; o.frequency.value=220;
+  g.gain.value=0.025;
+  o.connect(g); g.connect(actx.destination);
+  o.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+0.07);
+  o.stop(actx.currentTime+0.08);
+}
+function playStatic(duration=0.4){
+  if(!actx || !soundOn) return;
+  const bufferSize = Math.floor(actx.sampleRate*duration);
+  const buffer = actx.createBuffer(1,bufferSize,actx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1)*0.35; }
+  const src = actx.createBufferSource();
+  src.buffer = buffer;
+  const g = actx.createGain();
+  g.gain.value=0.05;
+  src.connect(g); g.connect(actx.destination);
+  src.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+duration);
+}
+document.addEventListener('pointerdown', ensureAudio, {once:true});
+document.addEventListener('keydown', ensureAudio, {once:true});
+
+// sons de interface: cliques em ícones, botões de janela e barra de tarefas
+document.querySelectorAll('.icon, .tb-btn, #start-btn, .tbar-app, .sm-item, .sm-tile').forEach(el=>{
+  el.addEventListener('click', ()=> playClick());
+});
+document.getElementById('up-now').addEventListener('click', ()=> playStatic(0.6));
+
+// ---------- EASTER EGG: CÓDIGO KONAMI ----------
+const konamiSeq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0;
+document.addEventListener('keydown', (e)=>{
+  const k = e.key.length===1 ? e.key.toLowerCase() : e.key;
+  if(k === konamiSeq[konamiIdx]){
+    konamiIdx++;
+    if(konamiIdx === konamiSeq.length){
+      konamiIdx = 0;
+      openSecretGame();
+    }
+  } else {
+    konamiIdx = (k === konamiSeq[0]) ? 1 : 0;
+  }
+});
+
+function openSecretGame(){
+  const win = document.getElementById('win-noclip');
+  document.querySelectorAll('.window').forEach(w=>w.classList.remove('active'));
+  win.classList.add('open','active');
+  win.style.display='flex';
+  win.style.zIndex = ++topZ;
+  requestAnimationFrame(()=> clampWinToViewport(win));
+  pushToast('??????.exe', 'Acesso não autorizado concedido. Alguém sabia esse código.');
+  playStatic(0.5);
+  initNoclipGame();
+}
+
+let noclipRunning = false;
+function initNoclipGame(){
+  if(noclipRunning) return;
+  noclipRunning = true;
+  const canvas = document.getElementById('noclip-canvas');
+  const cx = canvas.getContext('2d');
+  const statusEl = document.getElementById('noclip-status');
+  let player = {x:150,y:110};
+  let entity = {x:20,y:20};
+  const keys = {};
+  let startTime = performance.now();
+  let last = startTime;
+  let gameOver = false;
+  let bestTime = parseFloat(localStorage.getItem('noclip-best')||'0');
+
+  function keyHandler(e, down){
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
+      keys[e.key]=down; e.preventDefault();
+    }
+  }
+  const kd = e=>keyHandler(e,true), ku=e=>keyHandler(e,false);
+  document.addEventListener('keydown', kd);
+  document.addEventListener('keyup', ku);
+  const restartKey = (e)=>{
+    if((e.key==='r'||e.key==='R') && gameOver){
+      player={x:150,y:110}; entity={x:20,y:20};
+      startTime=performance.now(); last=startTime; gameOver=false;
+    }
+  };
+  document.addEventListener('keydown', restartKey);
+
+  function loop(now){
+    const win = document.getElementById('win-noclip');
+    if(!win.classList.contains('open') || win.style.display==='none'){
+      document.removeEventListener('keydown', kd);
+      document.removeEventListener('keyup', ku);
+      document.removeEventListener('keydown', restartKey);
+      noclipRunning = false;
+      return;
+    }
+    const dt = Math.min((now-last)/1000, 0.05); last = now;
+    if(!gameOver){
+      const pspeed=115;
+      if(keys['ArrowUp']) player.y-=pspeed*dt;
+      if(keys['ArrowDown']) player.y+=pspeed*dt;
+      if(keys['ArrowLeft']) player.x-=pspeed*dt;
+      if(keys['ArrowRight']) player.x+=pspeed*dt;
+      player.x=Math.max(6,Math.min(canvas.width-6,player.x));
+      player.y=Math.max(6,Math.min(canvas.height-6,player.y));
+
+      const elapsed=(now-startTime)/1000;
+      const curSpeed = 55 + elapsed*4.2;
+      const dx=player.x-entity.x, dy=player.y-entity.y;
+      const dist=Math.hypot(dx,dy)||1;
+      entity.x += (dx/dist)*curSpeed*dt;
+      entity.y += (dy/dist)*curSpeed*dt;
+
+      if(dist < 11){
+        gameOver=true;
+        if(elapsed>bestTime){ bestTime=elapsed; localStorage.setItem('noclip-best', bestTime.toFixed(1)); }
+        playStatic(0.5);
+      }
+      statusEl.textContent = 'tempo: '+elapsed.toFixed(1)+'s  ·  recorde: '+bestTime.toFixed(1)+'s';
+    }
+    cx.fillStyle='#050402'; cx.fillRect(0,0,canvas.width,canvas.height);
+    cx.strokeStyle='rgba(255,180,0,0.15)'; cx.strokeRect(0.5,0.5,canvas.width-1,canvas.height-1);
+    cx.fillStyle='#ffb400'; cx.fillRect(player.x-5,player.y-5,10,10);
+    cx.fillStyle='#c1121f'; cx.fillRect(entity.x-6,entity.y-6,12,12);
+    if(gameOver){
+      cx.fillStyle='rgba(0,0,0,0.65)'; cx.fillRect(0,0,canvas.width,canvas.height);
+      cx.fillStyle='#ffb400'; cx.font='13px monospace'; cx.textAlign='center';
+      cx.fillText('VOCÊ FOI ALCANÇADO', canvas.width/2, canvas.height/2-8);
+      cx.font='11px monospace'; cx.fillStyle='#8a6a1e';
+      cx.fillText('pressione R para tentar de novo', canvas.width/2, canvas.height/2+12);
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
 </script>
 </body>
 </html>
