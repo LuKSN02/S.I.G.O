@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
 :root{
+  /* ---- paleta original S.I.G.O. (preservada) ---- */
   --bg-void:#100e08;
   --bg-panel:#1c1810;
   --wall-yellow:#4a3f1e;
@@ -18,6 +19,14 @@
   --danger:#c1121f;
   --ok:#5a7d4a;
   --rivet:#0a0805;
+
+  /* ---- casca "Windows 7 Aero" tingida de âmbar ---- */
+  --aero-glass:rgba(38,30,14,0.55);
+  --aero-glass-strong:rgba(28,22,10,0.82);
+  --aero-shine:rgba(255,214,120,0.35);
+  --aero-edge:rgba(255,180,0,0.55);
+  --aero-blue-ghost:rgba(255,190,60,0.18); /* eco do azul Aero, só que âmbar */
+  --ui-font:'Segoe UI','Tahoma',Geneva,Verdana,sans-serif;
 }
 *{box-sizing:border-box;}
 html,body{
@@ -28,31 +37,58 @@ html,body{
   color:var(--amber);
 }
 
-/* ---------- BOOT SCREEN ---------- */
+/* ================= BOOT SCREEN ================= */
 #boot{
   position:fixed;inset:0;background:#000;color:var(--amber);
-  font-family:'Share Tech Mono',monospace;
-  padding:6vh 8vw;font-size:15px;line-height:1.7;
-  z-index:999;white-space:pre-wrap;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;cursor:pointer;
+}
+#orb-assemble{display:flex;gap:10px;margin-bottom:34px;}
+#orb-assemble span{
+  width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #ffe9ad, var(--amber) 55%, var(--amber-dim) 100%);
+  box-shadow:0 0 14px rgba(255,180,0,0.7);
+  opacity:0;transform:translateY(14px) scale(0.4);
+  animation:orbIn 0.6s ease forwards;
+}
+#orb-assemble span:nth-child(1){animation-delay:0.15s;}
+#orb-assemble span:nth-child(2){animation-delay:0.4s;}
+#orb-assemble span:nth-child(3){animation-delay:0.65s;}
+#orb-assemble span:nth-child(4){animation-delay:0.9s;}
+@keyframes orbIn{to{opacity:1;transform:translateY(0) scale(1);}}
+#boot-caption{font-family:var(--ui-font);font-size:13px;letter-spacing:3px;color:var(--amber-dim);margin-bottom:40px;opacity:0;animation:orbIn 0.8s ease forwards 1.2s;}
+#boot-log{
+  font-family:'Share Tech Mono',monospace;font-size:14px;line-height:1.7;
+  width:min(640px,84vw);white-space:pre-wrap;opacity:0;
+  animation:orbIn 0.5s ease forwards 1.6s;
 }
 #boot .caret{animation:blink 1s steps(1) infinite;}
-#boot .skip{position:absolute;bottom:24px;right:32px;font-size:12px;color:var(--amber-dim);}
+#boot .skip{position:absolute;bottom:24px;right:32px;font-size:12px;color:var(--amber-dim);font-family:var(--ui-font);}
 @keyframes blink{50%{opacity:0;}}
 
-/* ---------- DESKTOP / WALLPAPER ---------- */
+/* ================= DESKTOP / WALLPAPER ================= */
 #desktop{
   position:fixed;inset:0;
   background:
-    repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 3px),
-    repeating-linear-gradient(90deg, transparent 0 38px, rgba(255,180,0,0.03) 38px 39px),
-    repeating-linear-gradient(0deg, transparent 0 38px, rgba(255,180,0,0.03) 38px 39px),
-    linear-gradient(160deg,#241d10,#171207 70%);
+    radial-gradient(ellipse 60% 45% at 18% 20%, var(--aero-blue-ghost), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(255,180,0,0.10), transparent 65%),
+    repeating-linear-gradient(100deg, rgba(255,180,0,0.025) 0 2px, transparent 2px 90px),
+    linear-gradient(155deg,#2a2210 0%,#181307 55%,#0f0c06 100%);
   display:none;
 }
-#desktop.active{display:block;}
+#desktop.active{display:block;animation:deskIn .5s ease;}
+@keyframes deskIn{from{opacity:0;}to{opacity:1;}}
+
+/* corredor de fundo, eco sutil da "Sala de Espera" atrás do vidro Aero */
+#wallpaper-corridor{
+  position:absolute;inset:0;pointer-events:none;opacity:0.5;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,180,0,0.05) 0 1px, transparent 1px 64px);
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%, #000 0%, transparent 75%);
+}
 #scanlines{
   position:fixed;inset:0;pointer-events:none;z-index:500;
-  background:repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 2px);
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 2px);
   mix-blend-mode:overlay;
 }
 #flicker{
@@ -60,83 +96,97 @@ html,body{
 }
 @keyframes flickerFx{
   0%,97%,100%{opacity:0;}
-  98%{opacity:0.03;}
+  98%{opacity:0.02;}
   98.5%{opacity:0;}
-  99%{opacity:0.05;}
+  99%{opacity:0.035;}
 }
-#flicker{animation:flickerFx 6s infinite;}
+#flicker{animation:flickerFx 7s infinite;}
 
-/* ---------- ICONS ---------- */
+/* ================= DESKTOP ICONS (estilo Win7: sem caixa, texto com sombra) ================= */
 #icons{
-  position:absolute;top:30px;left:26px;
-  display:flex;flex-direction:column;gap:26px;z-index:5;
+  position:absolute;top:22px;left:20px;
+  display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:6px;z-index:5;
+  height:calc(100vh - 90px);
+  max-height:calc(100vh - 90px);
 }
 .icon{
-  width:92px;text-align:center;cursor:pointer;user-select:none;
-  color:var(--amber);text-shadow:0 0 6px rgba(255,180,0,0.4);
+  width:82px;text-align:center;cursor:pointer;user-select:none;
+  padding:6px 4px;border-radius:3px;
+  border:1px solid transparent;
 }
+.icon:hover, .icon:focus-visible{background:rgba(255,214,120,0.12);border-color:rgba(255,180,0,0.35);}
+.icon:active{background:rgba(255,180,0,0.22);}
 .icon .glyph{
-  width:56px;height:56px;margin:0 auto 6px;
-  background:var(--bg-panel);
-  border:2px solid var(--amber-dim);
+  width:44px;height:44px;margin:0 auto 6px;
+  border-radius:9px;
+  background:linear-gradient(160deg, rgba(60,48,20,0.9), rgba(20,16,8,0.9));
+  border:1px solid rgba(255,180,0,0.4);
   display:flex;align-items:center;justify-content:center;
-  font-size:26px;position:relative;
-  box-shadow:inset 0 0 12px rgba(0,0,0,0.6);
+  font-size:20px;position:relative;color:var(--amber);
+  box-shadow:
+    inset 0 1px 0 rgba(255,220,140,0.5),
+    inset 0 -10px 14px rgba(0,0,0,0.45),
+    0 3px 6px rgba(0,0,0,0.5);
 }
-.icon .glyph::before,.icon .glyph::after{
-  content:'';position:absolute;width:5px;height:5px;background:var(--rivet);
-  border-radius:50%;top:3px;left:3px;box-shadow:47px 0 var(--rivet),0 47px var(--rivet),47px 47px var(--rivet);
+.icon .glyph::after{
+  content:'';position:absolute;top:1px;left:3px;right:3px;height:45%;
+  border-radius:8px 8px 40% 40%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+  pointer-events:none;
 }
-.icon:hover .glyph{border-color:var(--amber);box-shadow:0 0 14px rgba(255,180,0,0.5) inset;}
-.icon span{font-size:11px;letter-spacing:0.5px;display:block;}
-
-/* ---------- TASKBAR ---------- */
-#taskbar{
-  position:absolute;left:0;right:0;bottom:0;height:46px;
-  background:var(--bg-panel);border-top:2px solid var(--amber-dim);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;z-index:600;font-size:13px;
-}
-#taskbar .start{color:var(--amber);letter-spacing:1px;font-weight:bold;}
-#status{display:flex;gap:22px;align-items:center;color:var(--amber-dim);font-size:12px;}
-#status .sig{color:var(--amber);}
-#status .glitchable{position:relative;}
-.jitter{animation:jitter 2.4s infinite;}
-@keyframes jitter{
-  0%,90%,100%{transform:translateX(0);}
-  92%{transform:translateX(-1px);}
-  94%{transform:translateX(1px);}
+.icon span{
+  font-family:var(--ui-font);font-size:11.5px;letter-spacing:0.2px;display:block;color:#fff;
+  text-shadow:0 1px 2px #000, 0 0 4px rgba(0,0,0,0.8);
 }
 
-/* ---------- WINDOWS ---------- */
+/* ================= WINDOWS - Aero glass chrome, conteúdo original preservado ================= */
 .window{
   position:absolute;
   width:460px;min-width:300px;
   background:var(--bg-panel);
-  border:2px solid var(--amber-dim);
-  box-shadow:0 12px 40px rgba(0,0,0,0.6);
+  border:1px solid rgba(0,0,0,0.6);
+  border-radius:8px;
+  box-shadow:0 18px 46px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,180,0,0.15);
   display:none;flex-direction:column;
-  z-index:10;
+  z-index:10;overflow:hidden;
 }
 .window.open{display:flex;}
-.window .titlebar{
-  background:linear-gradient(180deg,#3a2f16,#241c0e);
-  color:var(--amber);padding:8px 10px;
-  display:flex;justify-content:space-between;align-items:center;
-  cursor:move;font-family:'VT323',monospace;font-size:19px;letter-spacing:1px;
-  border-bottom:2px solid var(--amber-dim);position:relative;
+.window.maximized{border-radius:0;}
+.window.active{box-shadow:0 22px 60px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,180,0,0.4), 0 0 18px rgba(255,180,0,0.15);}
+
+.titlebar{
+  background:
+    linear-gradient(180deg, rgba(255,214,120,0.55) 0%, rgba(120,90,30,0.35) 8%, var(--aero-glass) 45%, var(--aero-glass-strong) 100%);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  color:var(--amber);padding:6px 6px 6px 10px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  cursor:move;border-bottom:1px solid rgba(255,180,0,0.45);
+  position:relative;
 }
-.window .titlebar::before,.window .titlebar::after{
-  content:'';position:absolute;width:5px;height:5px;background:var(--rivet);border-radius:50%;top:6px;
+.window.active .titlebar{background:
+    linear-gradient(180deg, rgba(255,225,150,0.7) 0%, rgba(150,110,30,0.4) 8%, rgba(60,46,18,0.75) 45%, rgba(30,23,10,0.9) 100%);
 }
-.window .titlebar::before{left:6px;}
-.window .titlebar::after{right:6px;}
-.window .titlebar .x{
-  cursor:pointer;color:var(--danger);font-weight:bold;padding:0 6px;font-family:'Share Tech Mono',monospace;font-size:14px;
+.titlebar .tb-left{display:flex;align-items:center;gap:8px;min-width:0;}
+.titlebar .tb-icon{font-size:14px;flex-shrink:0;text-shadow:0 0 6px rgba(255,180,0,0.6);}
+.titlebar .tb-title{
+  font-family:var(--ui-font);font-size:12.5px;letter-spacing:0.3px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 1px 1px rgba(0,0,0,0.6);
 }
+.tb-controls{display:flex;gap:3px;flex-shrink:0;}
+.tb-btn{
+  width:24px;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--ui-font);font-size:11px;color:var(--amber);cursor:pointer;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,180,0,0.25);
+}
+.tb-btn:hover{background:rgba(255,190,60,0.35);border-color:var(--amber);}
+.tb-btn.close:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+.tb-btn.min{font-size:14px;line-height:0;}
+
 .window .content{
   padding:16px 18px;overflow-y:auto;max-height:60vh;font-size:13.5px;line-height:1.65;
 }
+.window.maximized .content{max-height:none;flex:1;}
 .window .content::-webkit-scrollbar{width:8px;}
 .window .content::-webkit-scrollbar-thumb{background:var(--amber-dim);}
 
@@ -179,7 +229,7 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 }
 #lock-screen button{
   display:block;margin:12px auto 0;background:var(--amber-dim);border:none;color:#000;
-  padding:6px 18px;font-family:'Share Tech Mono',monospace;cursor:pointer;font-weight:bold;
+  padding:6px 18px;font-family:'Share Tech Mono',monospace;cursor:pointer;font-weight:bold;border-radius:2px;
 }
 #lock-screen button:hover{background:var(--amber);}
 #lock-msg{font-size:12px;color:var(--danger);margin-top:8px;min-height:16px;}
@@ -217,37 +267,172 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 #mapa-svg line{stroke:var(--amber-dim);stroke-width:1;stroke-dasharray:3 3;}
 #mapa-desc{background:#0c0a06;border:1px solid var(--amber-dim);padding:10px;min-height:70px;font-size:12.5px;}
 
+/* ================= TASKBAR — Aero glass âmbar ================= */
+#taskbar{
+  position:absolute;left:0;right:0;bottom:0;height:42px;
+  background:
+    linear-gradient(180deg, rgba(70,55,20,0.55) 0%, rgba(30,24,10,0.72) 12%, rgba(14,11,5,0.88) 100%);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-top:1px solid rgba(255,200,90,0.45);
+  box-shadow:0 -1px 0 rgba(255,255,255,0.05) inset, 0 -14px 30px rgba(0,0,0,0.35);
+  display:flex;align-items:stretch;
+  z-index:600;font-size:13px;
+}
+#start-btn{
+  width:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  position:relative;
+}
+#start-orb{
+  width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, #ffe9ad 0%, var(--amber) 40%, #8a5a10 78%, #5c3c0a 100%);
+  box-shadow:0 0 10px rgba(255,180,0,0.65), inset 0 1px 2px rgba(255,255,255,0.6), inset 0 -6px 8px rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:center;color:#2a1c04;font-weight:bold;font-size:15px;font-family:var(--ui-font);
+}
+#start-btn:hover #start-orb{box-shadow:0 0 16px rgba(255,190,60,0.9), inset 0 1px 2px rgba(255,255,255,0.7), inset 0 -6px 8px rgba(0,0,0,0.4);}
+#start-btn:active #start-orb{transform:scale(0.94);}
+
+#taskbar-sep{width:1px;background:rgba(255,255,255,0.08);margin:6px 2px;box-shadow:1px 0 0 rgba(0,0,0,0.4);}
+
+#taskbar-apps{flex:1;display:flex;align-items:stretch;gap:3px;padding:4px 4px;overflow:hidden;}
+.tbar-app{
+  display:flex;align-items:center;gap:6px;min-width:38px;max-width:180px;padding:0 10px;
+  border-radius:3px;cursor:pointer;color:var(--amber);
+  border:1px solid transparent;
+  font-family:var(--ui-font);font-size:12px;
+  background:rgba(255,255,255,0.03);
+}
+.tbar-app .g{font-size:14px;flex-shrink:0;}
+.tbar-app .l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tbar-app:hover{background:linear-gradient(180deg, rgba(255,210,120,0.28), rgba(255,180,0,0.12));border-color:rgba(255,180,0,0.4);}
+.tbar-app.active{
+  background:linear-gradient(180deg, rgba(255,190,60,0.4), rgba(255,150,0,0.18));
+  border-color:rgba(255,190,60,0.65);
+  box-shadow:inset 0 0 0 1px rgba(255,220,140,0.3), 0 0 8px rgba(255,170,0,0.35);
+}
+.tbar-app.minimized{opacity:0.6;}
+
+#status{display:flex;gap:16px;align-items:center;color:var(--amber-dim);font-size:11px;padding:0 12px;
+  font-family:var(--ui-font);border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
+#status .sig{color:var(--amber);}
+#clock{color:var(--amber);font-size:12px;text-align:right;}
+.jitter{animation:jitter 2.4s infinite;}
+@keyframes jitter{
+  0%,90%,100%{transform:translateX(0);}
+  92%{transform:translateX(-1px);}
+  94%{transform:translateX(1px);}
+}
+#show-desktop{width:10px;flex-shrink:0;border-left:1px solid rgba(255,255,255,0.1);cursor:pointer;}
+#show-desktop:hover{background:rgba(255,200,90,0.15);}
+
+/* ================= START MENU ================= */
+#start-menu{
+  position:absolute;left:6px;bottom:46px;width:300px;max-height:64vh;
+  background:linear-gradient(180deg, rgba(40,32,14,0.96), rgba(16,13,6,0.98));
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,190,60,0.5);border-radius:8px 8px 4px 4px;
+  box-shadow:0 -2px 0 rgba(255,220,140,0.2) inset, 0 18px 50px rgba(0,0,0,0.6);
+  display:none;flex-direction:column;z-index:900;overflow:hidden;
+}
+#start-menu.open{display:flex;}
+#start-menu .sm-head{
+  padding:12px 14px 10px;font-family:var(--ui-font);font-size:11px;letter-spacing:1px;
+  color:var(--amber-dim);border-bottom:1px solid rgba(255,180,0,0.2);
+  display:flex;justify-content:space-between;align-items:center;
+}
+#start-menu .sm-search{
+  margin:8px 12px;background:#0b0904;border:1px solid var(--amber-dim);border-radius:3px;
+  color:var(--amber);font-family:var(--ui-font);font-size:12px;padding:6px 8px;
+}
+#start-menu .sm-list{overflow-y:auto;padding:4px 6px;flex:1;}
+.sm-item{
+  display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:3px;cursor:pointer;
+  font-family:var(--ui-font);font-size:12.5px;color:var(--amber);
+}
+.sm-item:hover{background:linear-gradient(180deg, rgba(255,200,90,0.28), rgba(255,160,0,0.12));}
+.sm-item .g{
+  width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;
+  background:linear-gradient(160deg, rgba(60,48,20,0.9), rgba(20,16,8,0.9));border:1px solid rgba(255,180,0,0.35);flex-shrink:0;
+}
+#start-menu .sm-foot{
+  display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
+  border-top:1px solid rgba(255,180,0,0.2);background:rgba(0,0,0,0.25);
+}
+#shutdown-btn{
+  font-family:var(--ui-font);font-size:11.5px;color:#fff;background:linear-gradient(180deg,#7a1015,#3d0508);
+  border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:5px 12px;cursor:pointer;letter-spacing:0.5px;
+}
+#shutdown-btn:hover{filter:brightness(1.2);}
+#sm-user{font-family:var(--ui-font);font-size:11px;color:var(--amber-dim);}
+
 @media(max-width:640px){
   .window{width:88vw;}
-  #icons{gap:18px;}
+  #icons{gap:4px;top:14px;left:10px;}
+  #start-menu{width:78vw;}
+  #status span:not(#clock){display:none;}
+}
+
+/* ================= COMPATIBILIDADE 800x600 ================= */
+@media (max-width:800px), (max-height:600px){
+  .window{width:340px;min-width:240px;}
+  .window .content{max-height:38vh;font-size:12.5px;padding:10px 12px;}
+  .window .content h3{font-size:16px;margin:0 0 6px;}
+  .titlebar{padding:4px 4px 4px 8px;}
+  .titlebar .tb-title{font-size:11px;}
+  .tb-btn{width:20px;height:17px;font-size:10px;}
+
+  #icons{top:12px;left:10px;gap:3px;height:calc(100vh - 78px);max-height:calc(100vh - 78px);}
+  .icon{width:66px;padding:4px 3px;}
+  .icon .glyph{width:34px;height:34px;font-size:15px;margin-bottom:4px;}
+  .icon span{font-size:10px;}
+
+  #taskbar{height:36px;}
+  #start-btn{width:44px;}
+  #start-orb{width:26px;height:26px;font-size:12px;}
+  #taskbar-apps{padding:3px 3px;gap:2px;}
+  .tbar-app{min-width:30px;max-width:110px;padding:0 6px;font-size:10.5px;}
+  #status{gap:8px;font-size:9.5px;padding:0 8px;}
+  #status span:not(#clock){display:none;}
+  #clock{font-size:10.5px;}
+
+  #start-menu{width:220px;max-height:52vh;bottom:38px;}
+  #start-menu .sm-head{padding:8px 10px 6px;font-size:10px;}
+  .sm-item{padding:5px 6px;font-size:11px;}
+  .sm-item .g{width:22px;height:22px;font-size:12px;}
+
+  #boot-caption{font-size:11px;margin-bottom:22px;}
+  #orb-assemble{gap:8px;margin-bottom:22px;}
+  #orb-assemble span{width:13px;height:13px;}
+  #boot-log{font-size:12px;width:min(560px,90vw);}
+  #boot .skip{bottom:14px;right:16px;font-size:10.5px;}
 }
 </style>
 </head>
 <body>
 
-<div id="boot"><span id="boot-text"></span><span class="caret">▌</span><div class="skip">clique para pular</div></div>
+<div id="boot">
+  <div id="orb-assemble"><span></span><span></span><span></span><span></span></div>
+  <div id="boot-caption">S . I . G . O .   F I E L D   O S</div>
+  <div id="boot-log"><span id="boot-text"></span><span class="caret">▌</span></div>
+  <div class="skip">clique para pular</div>
+</div>
 
 <div id="desktop">
+  <div id="wallpaper-corridor"></div>
   <div id="scanlines"></div>
   <div id="flicker"></div>
 
-  <div id="icons">
-    <div class="icon" data-target="win-terminal"><div class="glyph">▣</div><span>S.I.G.O_TERMINAL</span></div>
-    <div class="icon" data-target="win-pessoal"><div class="glyph">☰</div><span>PESSOAL.dat</span></div>
-    <div class="icon" data-target="win-expedicoes"><div class="glyph">⌖</div><span>EXPEDIÇÕES.log</span></div>
-    <div class="icon" data-target="win-radio"><div class="glyph">◉</div><span>RÁDIO.wav</span></div>
-    <div class="icon" data-target="win-ameacas"><div class="glyph">⚠</div><span>AMEAÇAS.cls</span></div>
-    <div class="icon" data-target="win-niveis"><div class="glyph">▦</div><span>NÍVEIS.map</span></div>
-    <div class="icon" data-target="win-restrito"><div class="glyph">✕</div><span>RESTRITO.???</span></div>
-    <div class="icon" data-target="win-conselheiro"><div class="glyph">☖</div><span>CONSELHEIRO.dat</span></div>
-    <div class="icon" data-target="win-objetos"><div class="glyph">◇</div><span>OBJETOS.inv</span></div>
-    <div class="icon" data-target="win-mensagens"><div class="glyph">✉</div><span>MENSAGENS.msg</span></div>
-    <div class="icon" data-target="win-mapa"><div class="glyph">⌘</div><span>MAPA.exe</span></div>
-  </div>
+  <div id="icons"></div>
 
   <!-- ===================== TERMINAL ===================== -->
   <div class="window win-terminal" id="win-terminal" style="top:60px;left:140px;">
-    <div class="titlebar"><span>S.I.G.O_TERMINAL — HISTÓRICO</span><span class="x" data-close="win-terminal">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">▣</span><span class="tb-title">S.I.G.O_TERMINAL — HISTÓRICO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-terminal">─</span>
+        <span class="tb-btn max" data-max="win-terminal">□</span>
+        <span class="tb-btn close" data-close="win-terminal">✕</span>
+      </div>
+    </div>
     <div class="content">
       <h3>REDE INTERNA — MAJOR EXPLORER GROUP</h3>
       <p>CONECTANDO... ACESSO CONCEDIDO — NÍVEL: OPERACIONAL</p>
@@ -257,13 +442,20 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
       <p style="color:var(--amber);letter-spacing:1px;">"ENCONTRAR. DOCUMENTAR. TRAZER PARA CASA."</p>
       <p>Missão real, segundo o que se comenta nos corredores de Nível 0: ainda desconhecida até para boa parte de seus próprios membros.</p>
       <hr class="div">
-      <p style="font-size:12px;color:var(--amber-dim);">[fim do registro público — demais arquivos requerem autorização de acesso pelos ícones ao lado]</p>
+      <p style="font-size:12px;color:var(--amber-dim);">[fim do registro público — demais arquivos requerem autorização de acesso pelo Menu Iniciar ou pelos ícones da área de trabalho]</p>
     </div>
   </div>
 
   <!-- ===================== PESSOAL ===================== -->
   <div class="window win-paper" id="win-pessoal" style="top:90px;left:220px;">
-    <div class="titlebar"><span>PESSOAL.dat</span><span class="x" data-close="win-pessoal">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">☰</span><span class="tb-title">PESSOAL.dat</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-pessoal">─</span>
+        <span class="tb-btn max" data-max="win-pessoal">□</span>
+        <span class="tb-btn close" data-close="win-pessoal">✕</span>
+      </div>
+    </div>
     <div class="content">
       <h3>Quadro de Hierarquia</h3>
       <div class="role"><b>Classe E — Recruta</b><br>Recém no-clipped. Passa por orientação básica antes de qualquer contato com um Nível ativo. Sem acesso a armamento ou equipamento de extração.</div>
@@ -279,7 +471,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== EXPEDIÇÕES ===================== -->
   <div class="window win-terminal" id="win-expedicoes" style="top:120px;left:300px;">
-    <div class="titlebar"><span>EXPEDIÇÕES.log</span><span class="x" data-close="win-expedicoes">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">⌖</span><span class="tb-title">EXPEDIÇÕES.log</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-expedicoes">─</span>
+        <span class="tb-btn max" data-max="win-expedicoes">□</span>
+        <span class="tb-btn close" data-close="win-expedicoes">✕</span>
+      </div>
+    </div>
     <div class="content">
       <div class="log-entry">
         <span class="tag ok">CONCLUÍDA</span> <b>Expedição 118-A</b> — Nível 11<br>
@@ -302,7 +501,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== RADIO ===================== -->
   <div class="window win-terminal" id="win-radio" style="top:150px;left:380px;">
-    <div class="titlebar"><span>RÁDIO — TRANSMISSÕES</span><span class="x" data-close="win-radio">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">◉</span><span class="tb-title">RÁDIO — TRANSMISSÕES</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-radio">─</span>
+        <span class="tb-btn max" data-max="win-radio">□</span>
+        <span class="tb-btn close" data-close="win-radio">✕</span>
+      </div>
+    </div>
     <div class="content">
       <div class="log-entry">
         <b>UNIDADE 7:</b> Base, aqui é Unidade 7. Estamos <span class="corrupt">na zona leste do</span> —"<br>
@@ -322,7 +528,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== AMEAÇAS ===================== -->
   <div class="window win-paper" id="win-ameacas" style="top:70px;left:460px;">
-    <div class="titlebar"><span>AMEAÇAS.cls</span><span class="x" data-close="win-ameacas">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">⚠</span><span class="tb-title">AMEAÇAS.cls</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-ameacas">─</span>
+        <span class="tb-btn max" data-max="win-ameacas">□</span>
+        <span class="tb-btn close" data-close="win-ameacas">✕</span>
+      </div>
+    </div>
     <div class="content">
       <h3>Classificação de Entidades</h3>
       <p><span class="tag ok">CLASSE VERDE</span> — Passiva. Ignora presença humana salvo provocação direta.</p>
@@ -336,7 +549,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== NÍVEIS ===================== -->
   <div class="window win-paper" id="win-niveis" style="top:100px;left:540px;">
-    <div class="titlebar"><span>NÍVEIS.map</span><span class="x" data-close="win-niveis">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">▦</span><span class="tb-title">NÍVEIS.map</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-niveis">─</span>
+        <span class="tb-btn max" data-max="win-niveis">□</span>
+        <span class="tb-btn close" data-close="win-niveis">✕</span>
+      </div>
+    </div>
     <div class="content">
       <h3>Catálogo de Níveis Conhecidos</h3>
       <p><b>Nível 0 — "Sala de Espera"</b><br>Entrada mais comum. Zumbido constante de luzes fluorescentes. Perigo: <span class="tag ok">baixo</span></p>
@@ -349,7 +569,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== RESTRITO ===================== -->
   <div class="window win-terminal" id="win-restrito" style="top:130px;left:200px;width:420px;">
-    <div class="titlebar"><span>ARQUIVO RESTRITO</span><span class="x" data-close="win-restrito">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">✕</span><span class="tb-title">ARQUIVO RESTRITO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-restrito">─</span>
+        <span class="tb-btn max" data-max="win-restrito">□</span>
+        <span class="tb-btn close" data-close="win-restrito">✕</span>
+      </div>
+    </div>
     <div class="content">
       <div id="lock-screen">
         <p style="color:var(--danger);">ACESSO NEGADO — CLASSE A REQUERIDA</p>
@@ -371,7 +598,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== CONSELHEIRO ===================== -->
   <div class="window win-paper" id="win-conselheiro" style="top:60px;left:520px;">
-    <div class="titlebar"><span>DOSSIÊ — CONSELHO DIRETOR</span><span class="x" data-close="win-conselheiro">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">☖</span><span class="tb-title">DOSSIÊ — CONSELHO DIRETOR</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-conselheiro">─</span>
+        <span class="tb-btn max" data-max="win-conselheiro">□</span>
+        <span class="tb-btn close" data-close="win-conselheiro">✕</span>
+      </div>
+    </div>
     <div class="content">
       <span class="stamp">CLASSE A — CONFIDENCIAL</span>
       <div class="redacted-photo"></div>
@@ -385,7 +619,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== OBJETOS ===================== -->
   <div class="window win-terminal" id="win-objetos" style="top:90px;left:600px;">
-    <div class="titlebar"><span>OBJETOS.inv — CATÁLOGO</span><span class="x" data-close="win-objetos">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">◇</span><span class="tb-title">OBJETOS.inv — CATÁLOGO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-objetos">─</span>
+        <span class="tb-btn max" data-max="win-objetos">□</span>
+        <span class="tb-btn close" data-close="win-objetos">✕</span>
+      </div>
+    </div>
     <div class="content">
       <div class="item"><span class="name">Água de Amêndoas</span> <span class="tag ok">CLASSE VERDE</span><br>
       Hidrata e elimina a fome por até 24h. Sabor idêntico entre lotes recuperados de Níveis diferentes — o que, segundo o laboratório de base, "não deveria ser quimicamente possível".</div>
@@ -400,7 +641,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== MENSAGENS ===================== -->
   <div class="window win-terminal" id="win-mensagens" style="top:120px;left:640px;">
-    <div class="titlebar"><span>MENSAGENS — CANAL INTERNO</span><span class="x" data-close="win-mensagens">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">✉</span><span class="tb-title">MENSAGENS — CANAL INTERNO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-mensagens">─</span>
+        <span class="tb-btn max" data-max="win-mensagens">□</span>
+        <span class="tb-btn close" data-close="win-mensagens">✕</span>
+      </div>
+    </div>
     <div class="content">
       <div class="msg left"><div class="who">OPERADOR_KAY</div>alguém mais leu o relatório da 041-Ω?</div>
       <div class="msg right"><div class="who">OPERADOR_DIAS</div>li. não durmo direito desde então.</div>
@@ -413,7 +661,14 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 
   <!-- ===================== MAPA INTERATIVO ===================== -->
   <div class="window win-terminal" id="win-mapa" style="top:150px;left:260px;width:480px;">
-    <div class="titlebar"><span>MAPA.exe — REDE DE NÍVEIS</span><span class="x" data-close="win-mapa">X</span></div>
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">⌘</span><span class="tb-title">MAPA.exe — REDE DE NÍVEIS</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-mapa">─</span>
+        <span class="tb-btn max" data-max="win-mapa">□</span>
+        <span class="tb-btn close" data-close="win-mapa">✕</span>
+      </div>
+    </div>
     <div class="content">
       <svg id="mapa-svg" viewBox="0 0 440 190">
         <line x1="70" y1="90" x2="160" y2="40"/>
@@ -433,17 +688,46 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
     </div>
   </div>
 
+  <!-- ===================== START MENU ===================== -->
+  <div id="start-menu">
+    <div class="sm-head"><span>S.I.G.O. OS v2.6</span><span id="sm-user">OPERADOR // NÍVEL 0</span></div>
+    <input class="sm-search" type="text" placeholder="Pesquisar arquivos e programas..." disabled>
+    <div class="sm-list" id="sm-list"></div>
+    <div class="sm-foot">
+      <span id="sm-user2" style="font-family:var(--ui-font);font-size:11px;color:var(--amber-dim);">uplink: instável</span>
+      <button id="shutdown-btn">DESLIGAR</button>
+    </div>
+  </div>
+
   <div id="taskbar">
-    <div class="start">S.I.G.O. OS v2.6 // UPLINK NÍVEL 0</div>
+    <div id="start-btn"><div id="start-orb">S</div></div>
+    <div id="taskbar-sep"></div>
+    <div id="taskbar-apps"></div>
     <div id="status">
-      <span class="glitchable jitter">SINAL: <span class="sig" id="sig-val">INSTÁVEL</span></span>
+      <span class="jitter">SINAL: <span class="sig" id="sig-val">INSTÁVEL</span></span>
       <span>ESTABILIDADE: <span id="stab-val">62%</span></span>
       <span id="clock">00:00:00</span>
     </div>
+    <div id="show-desktop" title="Mostrar área de trabalho"></div>
   </div>
 </div>
 
 <script>
+// ---------- LISTA DE PROGRAMAS (ícones, menu iniciar, barra de tarefas) ----------
+const APPS = [
+  {id:'win-terminal',   label:'S.I.G.O_TERMINAL',  glyph:'▣'},
+  {id:'win-pessoal',    label:'PESSOAL.dat',        glyph:'☰'},
+  {id:'win-expedicoes', label:'EXPEDIÇÕES.log',     glyph:'⌖'},
+  {id:'win-radio',      label:'RÁDIO.wav',          glyph:'◉'},
+  {id:'win-ameacas',    label:'AMEAÇAS.cls',        glyph:'⚠'},
+  {id:'win-niveis',     label:'NÍVEIS.map',         glyph:'▦'},
+  {id:'win-restrito',   label:'RESTRITO.???',       glyph:'✕'},
+  {id:'win-conselheiro',label:'CONSELHEIRO.dat',    glyph:'☖'},
+  {id:'win-objetos',    label:'OBJETOS.inv',        glyph:'◇'},
+  {id:'win-mensagens',  label:'MENSAGENS.msg',      glyph:'✉'},
+  {id:'win-mapa',       label:'MAPA.exe',           glyph:'⌘'},
+];
+
 // ---------- BOOT SEQUENCE ----------
 const bootLines = [
 "INICIALIZANDO TERMINAL DE CAMPO S.I.G.O...",
@@ -471,62 +755,237 @@ function typeBoot(){
     setTimeout(typeBoot, 120);
   }
 }
-typeBoot();
+setTimeout(typeBoot, 1700);
 function finishBoot(){
   document.getElementById('boot').style.display='none';
   document.getElementById('desktop').classList.add('active');
+  requestAnimationFrame(clampAllWindows);
 }
 document.getElementById('boot').addEventListener('click', finishBoot);
 
-// ---------- WINDOW MANAGEMENT ----------
-document.querySelectorAll('.icon').forEach(icon=>{
-  icon.addEventListener('click', ()=>{
-    const win = document.getElementById(icon.dataset.target);
-    win.classList.add('open');
-    win.style.zIndex = ++topZ;
-  });
+// ---------- MONTAGEM DE ÍCONES / MENU INICIAR ----------
+const iconsEl = document.getElementById('icons');
+const smList = document.getElementById('sm-list');
+APPS.forEach(app=>{
+  const icon = document.createElement('div');
+  icon.className='icon';
+  icon.tabIndex=0;
+  icon.innerHTML = `<div class="glyph">${app.glyph}</div><span>${app.label}</span>`;
+  icon.addEventListener('click', ()=>openWin(app.id));
+  iconsEl.appendChild(icon);
+
+  const smItem = document.createElement('div');
+  smItem.className='sm-item';
+  smItem.innerHTML = `<span class="g">${app.glyph}</span><span>${app.label}</span>`;
+  smItem.addEventListener('click', ()=>{ openWin(app.id); closeStartMenu(); });
+  smList.appendChild(smItem);
 });
-document.querySelectorAll('[data-close]').forEach(btn=>{
-  btn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    document.getElementById(btn.dataset.close).classList.remove('open');
-  });
-});
+
+// ---------- GERENCIAMENTO DE JANELAS ----------
 let topZ = 10;
+let activeWin = null;
+const openSet = new Set();
+const minSet = new Set();
+const taskbarBtns = {};
+
+function appOf(id){ return APPS.find(a=>a.id===id); }
+
+function makeTaskbarBtn(id){
+  const app = appOf(id);
+  const btn = document.createElement('div');
+  btn.className='tbar-app';
+  btn.innerHTML = `<span class="g">${app.glyph}</span><span class="l">${app.label}</span>`;
+  btn.addEventListener('click', ()=>{
+    if(minSet.has(id)){ restoreWin(id); }
+    else if(activeWin===id){ minimizeWin(id); }
+    else { focusWin(id); }
+  });
+  document.getElementById('taskbar-apps').appendChild(btn);
+  taskbarBtns[id]=btn;
+}
+
+function refreshTaskbarStates(){
+  Object.entries(taskbarBtns).forEach(([id,btn])=>{
+    btn.classList.toggle('active', id===activeWin && !minSet.has(id));
+    btn.classList.toggle('minimized', minSet.has(id));
+  });
+}
+
+// ---------- AJUSTE DE POSIÇÃO À VIEWPORT (compatibilidade 800x600 etc) ----------
+function clampWinToViewport(win){
+  if(!win || win.classList.contains('maximized')) return;
+  const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight - taskbarH;
+  const w = win.offsetWidth;
+  const h = win.offsetHeight;
+  const maxLeft = Math.max(0, vw - w);
+  const maxTop = Math.max(0, vh - h);
+  let left = parseInt(win.style.left, 10);
+  let top = parseInt(win.style.top, 10);
+  if(isNaN(left)) left = 0;
+  if(isNaN(top)) top = 0;
+  left = Math.min(Math.max(0, left), maxLeft);
+  top = Math.min(Math.max(0, top), maxTop);
+  win.style.left = left + 'px';
+  win.style.top = top + 'px';
+}
+function clampAllWindows(){
+  document.querySelectorAll('.window').forEach(clampWinToViewport);
+}
+window.addEventListener('resize', ()=>{ clampAllWindows(); });
+
+function openWin(id){
+  const win = document.getElementById(id);
+  if(!openSet.has(id)){
+    openSet.add(id);
+    makeTaskbarBtn(id);
+  }
+  minSet.delete(id);
+  win.classList.add('open');
+  win.style.display='flex';
+  focusWin(id);
+  // aguarda o layout aplicar a largura/altura real antes de reposicionar
+  requestAnimationFrame(()=> clampWinToViewport(win));
+}
+
+function focusWin(id){
+  document.querySelectorAll('.window').forEach(w=>w.classList.remove('active'));
+  const win = document.getElementById(id);
+  win.style.zIndex = ++topZ;
+  win.classList.add('active');
+  activeWin = id;
+  refreshTaskbarStates();
+}
+
+function minimizeWin(id){
+  const win = document.getElementById(id);
+  win.style.display='none';
+  minSet.add(id);
+  if(activeWin===id) activeWin=null;
+  refreshTaskbarStates();
+}
+
+function restoreWin(id){
+  const win = document.getElementById(id);
+  minSet.delete(id);
+  win.style.display='flex';
+  focusWin(id);
+}
+
+function closeWin(id){
+  const win = document.getElementById(id);
+  win.classList.remove('open');
+  win.style.display='none';
+  openSet.delete(id);
+  minSet.delete(id);
+  if(taskbarBtns[id]){ taskbarBtns[id].remove(); delete taskbarBtns[id]; }
+  if(activeWin===id) activeWin=null;
+}
+
+function toggleMaximize(id){
+  const win = document.getElementById(id);
+  if(win.classList.contains('maximized')){
+    win.classList.remove('maximized');
+    win.style.top = win.dataset.prevTop;
+    win.style.left = win.dataset.prevLeft;
+    win.style.width = win.dataset.prevWidth;
+    win.style.height = win.dataset.prevHeight || '';
+  } else {
+    win.dataset.prevTop = win.style.top;
+    win.dataset.prevLeft = win.style.left;
+    win.dataset.prevWidth = win.style.width;
+    win.dataset.prevHeight = win.style.height || '';
+    win.classList.add('maximized');
+    const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
+    win.style.top='0'; win.style.left='0';
+    win.style.width='100%'; win.style.height='calc(100% - '+taskbarH+'px)';
+  }
+  focusWin(id);
+}
+
+document.querySelectorAll('[data-close]').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{ e.stopPropagation(); closeWin(btn.dataset.close); });
+});
+document.querySelectorAll('[data-min]').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{ e.stopPropagation(); minimizeWin(btn.dataset.min); });
+});
+document.querySelectorAll('[data-max]').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMaximize(btn.dataset.max); });
+});
+
 document.querySelectorAll('.window').forEach(win=>{
-  win.addEventListener('mousedown', ()=>{ win.style.zIndex = ++topZ; });
+  win.addEventListener('mousedown', ()=> focusWin(win.id));
   const bar = win.querySelector('.titlebar');
   let dragging=false, offX=0, offY=0;
+  bar.addEventListener('dblclick', ()=> toggleMaximize(win.id));
   bar.addEventListener('mousedown', (e)=>{
-    if(e.target.classList.contains('x')) return;
+    if(e.target.closest('.tb-btn')) return;
+    if(win.classList.contains('maximized')) return;
     dragging=true;
     offX = e.clientX - win.offsetLeft;
     offY = e.clientY - win.offsetTop;
-    win.style.zIndex = ++topZ;
+    focusWin(win.id);
   });
   document.addEventListener('mousemove', (e)=>{
     if(!dragging) return;
-    win.style.left = Math.max(0, e.clientX-offX) + 'px';
-    win.style.top = Math.max(0, e.clientY-offY) + 'px';
+    const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
+    const maxLeft = Math.max(0, window.innerWidth - win.offsetWidth);
+    const maxTop = Math.max(0, window.innerHeight - taskbarH - win.offsetHeight);
+    win.style.left = Math.min(maxLeft, Math.max(0, e.clientX-offX)) + 'px';
+    win.style.top = Math.min(maxTop, Math.max(0, e.clientY-offY)) + 'px';
   });
   document.addEventListener('mouseup', ()=> dragging=false);
   // touch support
   bar.addEventListener('touchstart', (e)=>{
+    if(e.target.closest('.tb-btn')) return;
+    if(win.classList.contains('maximized')) return;
     const t=e.touches[0];
     dragging=true;
     offX = t.clientX - win.offsetLeft;
     offY = t.clientY - win.offsetTop;
+    focusWin(win.id);
   });
   document.addEventListener('touchmove', (e)=>{
     if(!dragging) return;
     const t=e.touches[0];
-    win.style.left = Math.max(0, t.clientX-offX) + 'px';
-    win.style.top = Math.max(0, t.clientY-offY) + 'px';
+    const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
+    const maxLeft = Math.max(0, window.innerWidth - win.offsetWidth);
+    const maxTop = Math.max(0, window.innerHeight - taskbarH - win.offsetHeight);
+    win.style.left = Math.min(maxLeft, Math.max(0, t.clientX-offX)) + 'px';
+    win.style.top = Math.min(maxTop, Math.max(0, t.clientY-offY)) + 'px';
   });
   document.addEventListener('touchend', ()=> dragging=false);
 });
 
-// ---------- CLOCK / STATUS FLICKER ----------
+// ---------- MENU INICIAR ----------
+const startMenu = document.getElementById('start-menu');
+document.getElementById('start-btn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  startMenu.classList.toggle('open');
+});
+function closeStartMenu(){ startMenu.classList.remove('open'); }
+document.addEventListener('click', (e)=>{
+  if(!startMenu.contains(e.target) && !document.getElementById('start-btn').contains(e.target)){
+    closeStartMenu();
+  }
+});
+document.getElementById('shutdown-btn').addEventListener('click', ()=>{
+  closeStartMenu();
+  document.getElementById('desktop').classList.remove('active');
+  document.getElementById('boot').style.display='flex';
+  document.getElementById('boot-text').textContent='';
+  document.querySelectorAll('#orb-assemble span').forEach(s=>{ s.style.animation='none'; void s.offsetWidth; s.style.animation=''; });
+  li=0; ci=0;
+  setTimeout(typeBoot, 1700);
+});
+
+// ---------- MOSTRAR ÁREA DE TRABALHO ----------
+document.getElementById('show-desktop').addEventListener('click', ()=>{
+  Object.keys(taskbarBtns).forEach(id=>{ if(!minSet.has(id)) minimizeWin(id); });
+});
+
+// ---------- RELÓGIO / STATUS ----------
 function tickClock(){
   const now = new Date();
   document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR');
@@ -539,7 +998,7 @@ setInterval(()=>{
   document.getElementById('stab-val').textContent = (40+Math.floor(Math.random()*40))+'%';
 }, 4000);
 
-// ---------- RESTRICTED FILE LOCK ----------
+// ---------- ARQUIVO RESTRITO ----------
 document.getElementById('lock-btn').addEventListener('click', ()=>{
   const val = document.getElementById('lock-input').value.trim();
   const msg = document.getElementById('lock-msg');
@@ -554,6 +1013,23 @@ document.getElementById('lock-btn').addEventListener('click', ()=>{
 });
 document.getElementById('lock-input').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') document.getElementById('lock-btn').click();
+});
+
+// ---------- MAPA INTERATIVO ----------
+const mapaDescs = {
+  n0:"NÍVEL 0 — Ponto de entrada padrão. Conexão estável com todos os Níveis mapeados.",
+  n1:"NÍVEL 1 — Acesso direto ao Nível 0 e ao Nível !. Rota mais usada por equipes de logística.",
+  n11:"NÍVEL 11 — Conectado ao Nível 0 e ao Nível !. Portais tendem a se realinhar sem aviso.",
+  nexcl:"NÍVEL ! — Nó central da rede. Conecta-se a quase todos os Níveis catalogados, inclusive alguns que o Conselho nega existir.",
+  nneg1:"NÍVEL -1 — Conexão confirmada apenas por registros indiretos. Dados de acesso: DADOS REMOVIDOS.",
+  unknown:"?????? — Nó detectado por engenharia de sinal, nunca confirmado por uma expedição. Rota desconhecida."
+};
+document.querySelectorAll('#mapa-svg .node').forEach(node=>{
+  node.addEventListener('click', ()=>{
+    document.querySelectorAll('#mapa-svg .node').forEach(n=>n.classList.remove('active'));
+    node.classList.add('active');
+    document.getElementById('mapa-desc').textContent = mapaDescs[node.dataset.lvl] || '';
+  });
 });
 </script>
 </body>
