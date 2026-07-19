@@ -20,12 +20,13 @@
   --ok:#5a7d4a;
   --rivet:#0a0805;
 
-  /* ---- casca "Windows 7 Aero" tingida de âmbar ---- */
-  --aero-glass:rgba(38,30,14,0.55);
-  --aero-glass-strong:rgba(28,22,10,0.82);
-  --aero-shine:rgba(255,214,120,0.35);
-  --aero-edge:rgba(255,180,0,0.55);
-  --aero-blue-ghost:rgba(255,190,60,0.18); /* eco do azul Aero, só que âmbar */
+  /* ---- casca "Windows 10" tingida de âmbar (flat design, sem vidro Aero) ---- */
+  --win10-chrome:#1a1509;
+  --win10-chrome-active:#241c0d;
+  --win10-taskbar:#100d06;
+  --win10-hover:rgba(255,190,60,0.16);
+  --win10-hover-strong:rgba(255,190,60,0.28);
+  --aero-blue-ghost:rgba(255,190,60,0.18); /* eco do azul de fundo, só que âmbar */
   --ui-font:'Segoe UI','Tahoma',Geneva,Verdana,sans-serif;
 }
 *{box-sizing:border-box;}
@@ -70,21 +71,57 @@ html,body{
 #desktop{
   position:fixed;inset:0;
   background:
-    radial-gradient(ellipse 60% 45% at 18% 20%, var(--aero-blue-ghost), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(255,180,0,0.10), transparent 65%),
-    repeating-linear-gradient(100deg, rgba(255,180,0,0.025) 0 2px, transparent 2px 90px),
-    linear-gradient(155deg,#2a2210 0%,#181307 55%,#0f0c06 100%);
+    /* manchas de umidade/mofo */
+    radial-gradient(ellipse 30% 22% at 12% 78%, rgba(70,60,20,0.35), transparent 70%),
+    radial-gradient(ellipse 22% 30% at 92% 15%, rgba(60,50,15,0.30), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 60% 92%, rgba(40,34,10,0.35), transparent 70%),
+    /* vinheta, sugerindo teto baixo e infinito */
+    radial-gradient(ellipse 90% 80% at 50% 45%, transparent 55%, rgba(10,8,3,0.55) 100%),
+    /* faixas verticais do papel de parede mofado, estilo backrooms */
+    repeating-linear-gradient(90deg,
+      rgba(0,0,0,0.06) 0 2px,
+      rgba(255,235,150,0.03) 2px 4px,
+      transparent 4px 58px),
+    /* juntas horizontais sutis do papel */
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.035) 0 1px, transparent 1px 26px),
+    /* base amarela suja e monocromática, característica das backrooms */
+    linear-gradient(165deg,#a89354 0%,#8f7c3f 40%,#6e5d2c 75%,#4a3d1c 100%);
   display:none;
 }
 #desktop.active{display:block;animation:deskIn .5s ease;}
 @keyframes deskIn{from{opacity:0;}to{opacity:1;}}
 
-/* corredor de fundo, eco sutil da "Sala de Espera" atrás do vidro Aero */
+/* corredor de fundo: paredes de papel amarelado somem no infinito, luzes fluorescentes zunindo */
 #wallpaper-corridor{
-  position:absolute;inset:0;pointer-events:none;opacity:0.5;
+  position:absolute;inset:0;pointer-events:none;opacity:0.85;
   background-image:
-    repeating-linear-gradient(90deg, rgba(255,180,0,0.05) 0 1px, transparent 1px 64px);
-  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%, #000 0%, transparent 75%);
+    repeating-linear-gradient(90deg,
+      rgba(255,247,214,0.22) 0 46px,
+      rgba(255,247,214,0) 46px 60px,
+      rgba(20,16,6,0.25) 60px 62px,
+      rgba(255,247,214,0) 62px 122px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.07) 0 1px, transparent 1px 64px);
+  background-position:0 -6vh, 0 0;
+  background-size:100% 5vh, 100% 100%;
+  mask-image:radial-gradient(ellipse 82% 68% at 50% 38%, #000 0%, transparent 78%);
+  animation:fluorescentHum 6s ease-in-out infinite;
+}
+@keyframes fluorescentHum{
+  0%,100%{opacity:0.85;}
+  92%{opacity:0.85;}
+  93%{opacity:0.55;}
+  94%{opacity:0.85;}
+  96%{opacity:0.65;}
+  97%{opacity:0.85;}
+}
+/* carpete manchado no piso, eco leve das backrooms */
+#wallpaper-corridor::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:38%;
+  background:
+    radial-gradient(ellipse 30% 40% at 30% 100%, rgba(0,0,0,0.35), transparent 70%),
+    radial-gradient(ellipse 25% 35% at 75% 100%, rgba(0,0,0,0.3), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 10px),
+    linear-gradient(0deg, rgba(30,24,10,0.55), transparent);
 }
 #scanlines{
   position:fixed;inset:0;pointer-events:none;z-index:500;
@@ -102,7 +139,7 @@ html,body{
 }
 #flicker{animation:flickerFx 7s infinite;}
 
-/* ================= DESKTOP ICONS (estilo Win7: sem caixa, texto com sombra) ================= */
+/* ================= DESKTOP ICONS (estilo Win10: flat, sem brilho/bisel) ================= */
 #icons{
   position:absolute;top:22px;left:20px;
   display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:6px;z-index:5;
@@ -111,76 +148,67 @@ html,body{
 }
 .icon{
   width:82px;text-align:center;cursor:pointer;user-select:none;
-  padding:6px 4px;border-radius:3px;
+  padding:6px 4px;border-radius:2px;
   border:1px solid transparent;
 }
-.icon:hover, .icon:focus-visible{background:rgba(255,214,120,0.12);border-color:rgba(255,180,0,0.35);}
-.icon:active{background:rgba(255,180,0,0.22);}
+.icon:hover, .icon:focus-visible{background:var(--win10-hover);border-color:rgba(255,180,0,0.3);}
+.icon:active{background:var(--win10-hover-strong);}
 .icon .glyph{
-  width:44px;height:44px;margin:0 auto 6px;
-  border-radius:9px;
-  background:linear-gradient(160deg, rgba(60,48,20,0.9), rgba(20,16,8,0.9));
+  width:42px;height:42px;margin:0 auto 6px;
+  border-radius:2px;
+  background:#1c1810;
   border:1px solid rgba(255,180,0,0.4);
   display:flex;align-items:center;justify-content:center;
-  font-size:20px;position:relative;color:var(--amber);
-  box-shadow:
-    inset 0 1px 0 rgba(255,220,140,0.5),
-    inset 0 -10px 14px rgba(0,0,0,0.45),
-    0 3px 6px rgba(0,0,0,0.5);
-}
-.icon .glyph::after{
-  content:'';position:absolute;top:1px;left:3px;right:3px;height:45%;
-  border-radius:8px 8px 40% 40%;
-  background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
-  pointer-events:none;
+  font-size:19px;position:relative;color:var(--amber);
+  box-shadow:0 1px 3px rgba(0,0,0,0.5);
 }
 .icon span{
   font-family:var(--ui-font);font-size:11.5px;letter-spacing:0.2px;display:block;color:#fff;
   text-shadow:0 1px 2px #000, 0 0 4px rgba(0,0,0,0.8);
 }
 
-/* ================= WINDOWS - Aero glass chrome, conteúdo original preservado ================= */
+/* ================= WINDOWS - casca Windows 10 flat, conteúdo original preservado ================= */
 .window{
   position:absolute;
   width:460px;min-width:300px;
   background:var(--bg-panel);
-  border:1px solid rgba(0,0,0,0.6);
-  border-radius:8px;
-  box-shadow:0 18px 46px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,180,0,0.15);
+  border:1px solid rgba(255,180,0,0.2);
+  border-radius:0;
+  box-shadow:0 6px 20px rgba(0,0,0,0.55);
   display:none;flex-direction:column;
   z-index:10;overflow:hidden;
 }
 .window.open{display:flex;}
 .window.maximized{border-radius:0;}
-.window.active{box-shadow:0 22px 60px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,180,0,0.4), 0 0 18px rgba(255,180,0,0.15);}
+.window.active{box-shadow:0 10px 30px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,180,0,0.35);}
 
 .titlebar{
-  background:
-    linear-gradient(180deg, rgba(255,214,120,0.55) 0%, rgba(120,90,30,0.35) 8%, var(--aero-glass) 45%, var(--aero-glass-strong) 100%);
-  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
-  color:var(--amber);padding:6px 6px 6px 10px;
+  background:var(--win10-chrome);
+  color:var(--amber);padding:0 0 0 10px;
+  height:32px;
   display:flex;justify-content:space-between;align-items:center;gap:10px;
-  cursor:move;border-bottom:1px solid rgba(255,180,0,0.45);
+  cursor:move;border-bottom:1px solid rgba(255,180,0,0.18);
   position:relative;
 }
-.window.active .titlebar{background:
-    linear-gradient(180deg, rgba(255,225,150,0.7) 0%, rgba(150,110,30,0.4) 8%, rgba(60,46,18,0.75) 45%, rgba(30,23,10,0.9) 100%);
-}
+.window.active .titlebar{background:var(--win10-chrome-active);border-bottom-color:rgba(255,180,0,0.4);}
 .titlebar .tb-left{display:flex;align-items:center;gap:8px;min-width:0;}
-.titlebar .tb-icon{font-size:14px;flex-shrink:0;text-shadow:0 0 6px rgba(255,180,0,0.6);}
+.titlebar .tb-icon{font-size:13px;flex-shrink:0;color:var(--amber-dim);}
+.window.active .titlebar .tb-icon{color:var(--amber);}
 .titlebar .tb-title{
-  font-family:var(--ui-font);font-size:12.5px;letter-spacing:0.3px;font-weight:600;
+  font-family:var(--ui-font);font-size:12px;letter-spacing:0.2px;font-weight:400;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  text-shadow:0 1px 1px rgba(0,0,0,0.6);
+  color:var(--amber-dim);
 }
-.tb-controls{display:flex;gap:3px;flex-shrink:0;}
+.window.active .titlebar .tb-title{color:var(--amber);}
+.tb-controls{display:flex;gap:0;flex-shrink:0;align-self:stretch;}
 .tb-btn{
-  width:24px;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;
-  font-family:var(--ui-font);font-size:11px;color:var(--amber);cursor:pointer;
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,180,0,0.25);
+  width:44px;height:32px;border-radius:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--ui-font);font-size:11px;color:var(--amber-dim);cursor:pointer;
+  background:transparent;border:none;
 }
-.tb-btn:hover{background:rgba(255,190,60,0.35);border-color:var(--amber);}
-.tb-btn.close:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+.window.active .tb-btn{color:var(--amber);}
+.tb-btn:hover{background:var(--win10-hover-strong);color:var(--amber);}
+.tb-btn.close:hover{background:var(--danger);color:#fff;}
 .tb-btn.min{font-size:14px;line-height:0;}
 
 .window .content{
@@ -267,102 +295,201 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 #mapa-svg line{stroke:var(--amber-dim);stroke-width:1;stroke-dasharray:3 3;}
 #mapa-desc{background:#0c0a06;border:1px solid var(--amber-dim);padding:10px;min-height:70px;font-size:12.5px;}
 
-/* ================= TASKBAR — Aero glass âmbar ================= */
+/* ================= TASKBAR — Windows 10 flat, âmbar ================= */
 #taskbar{
-  position:absolute;left:0;right:0;bottom:0;height:42px;
-  background:
-    linear-gradient(180deg, rgba(70,55,20,0.55) 0%, rgba(30,24,10,0.72) 12%, rgba(14,11,5,0.88) 100%);
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-  border-top:1px solid rgba(255,200,90,0.45);
-  box-shadow:0 -1px 0 rgba(255,255,255,0.05) inset, 0 -14px 30px rgba(0,0,0,0.35);
+  position:absolute;left:0;right:0;bottom:0;height:40px;
+  background:var(--win10-taskbar);
+  border-top:1px solid rgba(255,180,0,0.25);
   display:flex;align-items:stretch;
   z-index:600;font-size:13px;
 }
 #start-btn{
-  width:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  width:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;
   position:relative;
 }
+#start-btn:hover{background:var(--win10-hover);}
+#start-btn:active{background:var(--win10-hover-strong);}
 #start-orb{
-  width:34px;height:34px;border-radius:50%;
-  background:radial-gradient(circle at 32% 28%, #ffe9ad 0%, var(--amber) 40%, #8a5a10 78%, #5c3c0a 100%);
-  box-shadow:0 0 10px rgba(255,180,0,0.65), inset 0 1px 2px rgba(255,255,255,0.6), inset 0 -6px 8px rgba(0,0,0,0.4);
-  display:flex;align-items:center;justify-content:center;color:#2a1c04;font-weight:bold;font-size:15px;font-family:var(--ui-font);
+  width:16px;height:16px;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;
 }
-#start-btn:hover #start-orb{box-shadow:0 0 16px rgba(255,190,60,0.9), inset 0 1px 2px rgba(255,255,255,0.7), inset 0 -6px 8px rgba(0,0,0,0.4);}
-#start-btn:active #start-orb{transform:scale(0.94);}
+#start-orb span{background:var(--amber);display:block;}
+#start-btn:hover #start-orb span{background:#ffd680;}
 
-#taskbar-sep{width:1px;background:rgba(255,255,255,0.08);margin:6px 2px;box-shadow:1px 0 0 rgba(0,0,0,0.4);}
+#taskbar-sep{width:1px;background:rgba(255,180,0,0.15);margin:8px 0;}
 
-#taskbar-apps{flex:1;display:flex;align-items:stretch;gap:3px;padding:4px 4px;overflow:hidden;}
+#tb-search{
+  display:flex;align-items:center;gap:8px;width:180px;margin:6px 6px;padding:0 10px;flex-shrink:0;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,180,0,0.15);
+  color:var(--amber-dim);font-family:var(--ui-font);font-size:11.5px;
+}
+#tb-search .ico{font-size:12px;flex-shrink:0;}
+#tb-search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+#tb-taskview{
+  width:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:default;
+  color:var(--amber-dim);font-size:14px;
+}
+#tb-taskview:hover{background:var(--win10-hover);color:var(--amber);}
+
+#taskbar-apps{flex:1;display:flex;align-items:stretch;gap:2px;padding:4px 4px;overflow:hidden;}
 .tbar-app{
   display:flex;align-items:center;gap:6px;min-width:38px;max-width:180px;padding:0 10px;
-  border-radius:3px;cursor:pointer;color:var(--amber);
-  border:1px solid transparent;
+  border-radius:0;cursor:pointer;color:var(--amber);
+  border-bottom:2px solid transparent;
   font-family:var(--ui-font);font-size:12px;
-  background:rgba(255,255,255,0.03);
+  background:rgba(255,255,255,0.02);
 }
 .tbar-app .g{font-size:14px;flex-shrink:0;}
 .tbar-app .l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tbar-app:hover{background:linear-gradient(180deg, rgba(255,210,120,0.28), rgba(255,180,0,0.12));border-color:rgba(255,180,0,0.4);}
+.tbar-app:hover{background:var(--win10-hover);}
 .tbar-app.active{
-  background:linear-gradient(180deg, rgba(255,190,60,0.4), rgba(255,150,0,0.18));
-  border-color:rgba(255,190,60,0.65);
-  box-shadow:inset 0 0 0 1px rgba(255,220,140,0.3), 0 0 8px rgba(255,170,0,0.35);
+  background:var(--win10-hover);
+  border-bottom-color:var(--amber);
 }
-.tbar-app.minimized{opacity:0.6;}
+.tbar-app.minimized{opacity:0.55;}
 
-#status{display:flex;gap:16px;align-items:center;color:var(--amber-dim);font-size:11px;padding:0 12px;
-  font-family:var(--ui-font);border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
+#status{display:flex;gap:14px;align-items:center;color:var(--amber-dim);font-size:11px;padding:0 12px;
+  font-family:var(--ui-font);border-left:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
 #status .sig{color:var(--amber);}
-#clock{color:var(--amber);font-size:12px;text-align:right;}
+#clock{color:var(--amber);font-size:11.5px;text-align:right;line-height:1.3;}
 .jitter{animation:jitter 2.4s infinite;}
 @keyframes jitter{
   0%,90%,100%{transform:translateX(0);}
   92%{transform:translateX(-1px);}
   94%{transform:translateX(1px);}
 }
-#show-desktop{width:10px;flex-shrink:0;border-left:1px solid rgba(255,255,255,0.1);cursor:pointer;}
-#show-desktop:hover{background:rgba(255,200,90,0.15);}
+#show-desktop{width:8px;flex-shrink:0;border-left:1px solid rgba(255,255,255,0.08);cursor:pointer;}
+#show-desktop:hover{background:var(--win10-hover);}
 
-/* ================= START MENU ================= */
+/* ================= TRAY: ícone de atualização ================= */
+#tray-update{position:relative;cursor:pointer;font-size:14px;color:var(--amber-dim);display:inline-flex;align-items:center;}
+#tray-update:hover{color:var(--amber);}
+#tray-update-dot{
+  position:absolute;top:-3px;right:-4px;width:7px;height:7px;border-radius:50%;
+  background:#3ea6ff;box-shadow:0 0 5px #3ea6ff;
+  animation:trayPulse 1.6s ease-in-out infinite;
+}
+@keyframes trayPulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+/* ================= POPUP: atualização SISTEMA 11 (nag estilo Windows) ================= */
+#update-popup{
+  position:fixed;right:16px;bottom:52px;width:320px;
+  background:#f3f3f3;color:#1a1a1a;
+  font-family:var(--ui-font);
+  border:1px solid #b8b8b8;box-shadow:0 8px 28px rgba(0,0,0,0.55);
+  z-index:950;overflow:hidden;
+  transform:translateY(16px);opacity:0;pointer-events:none;
+  transition:transform .35s ease, opacity .35s ease;
+}
+#update-popup.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+#update-popup .up-head{
+  background:linear-gradient(90deg,#0067c0,#3ea6ff);color:#fff;
+  padding:9px 12px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
+}
+#update-popup .up-head .up-x{margin-left:auto;cursor:pointer;font-weight:400;opacity:0.85;}
+#update-popup .up-head .up-x:hover{opacity:1;}
+#update-popup .up-body{padding:12px 14px 6px;}
+#update-popup .up-body h4{margin:0 0 6px;font-size:14px;color:#111;}
+#update-popup .up-body p{margin:0 0 8px;font-size:12px;line-height:1.5;color:#333;}
+#update-popup .up-countdown{font-size:11px;color:#c0392b;font-weight:600;margin-bottom:6px;}
+#update-popup .up-actions{display:flex;gap:8px;padding:6px 14px 14px;}
+#update-popup button{
+  flex:1;padding:7px 0;border:none;font-family:var(--ui-font);font-size:12px;cursor:pointer;
+}
+#update-popup .up-primary{background:#0067c0;color:#fff;}
+#update-popup .up-primary:hover{background:#0053a0;}
+#update-popup .up-secondary{background:#e2e2e2;color:#222;}
+#update-popup .up-secondary:hover{background:#d2d2d2;}
+#update-popup.urgent .up-head{background:linear-gradient(90deg,#a11212,#e13a3a);}
+#update-popup.urgent .up-countdown{animation:jitter 1.2s infinite;}
+
+@media(max-width:640px){
+  #update-popup{width:86vw;right:7vw;bottom:44px;}
+}
+
+/* ================= INSTALAÇÃO FALSA DO SISTEMA 11 ================= */
+#update-install{
+  position:fixed;inset:0;background:#000;color:#dfe7ef;z-index:998;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Share Tech Mono',monospace;text-align:center;padding:20px;
+}
+#update-install.show{display:flex;}
+#update-install .ui-logo{font-size:38px;margin-bottom:22px;color:#3ea6ff;letter-spacing:2px;}
+#update-install .ui-caption{font-family:var(--ui-font);font-size:13px;letter-spacing:2px;color:#8fb8dd;margin-bottom:26px;}
+#update-install .ui-bar-track{width:min(420px,80vw);height:4px;background:#20242b;overflow:hidden;margin-bottom:18px;}
+#update-install .ui-bar-fill{height:100%;width:0%;background:#3ea6ff;transition:width 3.6s linear;}
+#update-install .ui-log{width:min(460px,86vw);font-size:12.5px;line-height:1.8;color:#7d94a8;min-height:100px;text-align:left;white-space:pre-wrap;}
+#update-install .ui-error{
+  display:none;color:var(--danger);font-family:'Share Tech Mono',monospace;font-size:15px;
+  margin-top:22px;letter-spacing:0.5px;max-width:min(480px,88vw);
+}
+#update-install.error .ui-logo,#update-install.error .ui-caption,#update-install.error .ui-bar-track{opacity:0.35;}
+#update-install.error .ui-error{display:block;}
+#update-install .ui-ok{
+  display:none;margin-top:20px;padding:8px 22px;background:transparent;color:var(--amber);
+  border:1px solid var(--amber-dim);font-family:var(--ui-font);font-size:12px;cursor:pointer;
+}
+#update-install.error .ui-ok{display:inline-block;}
+#update-install .ui-ok:hover{background:var(--win10-hover);}
+
+/* ================= START MENU — Windows 10 (lista + grade de blocos) ================= */
 #start-menu{
-  position:absolute;left:6px;bottom:46px;width:300px;max-height:64vh;
-  background:linear-gradient(180deg, rgba(40,32,14,0.96), rgba(16,13,6,0.98));
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
-  border:1px solid rgba(255,190,60,0.5);border-radius:8px 8px 4px 4px;
-  box-shadow:0 -2px 0 rgba(255,220,140,0.2) inset, 0 18px 50px rgba(0,0,0,0.6);
-  display:none;flex-direction:column;z-index:900;overflow:hidden;
+  position:absolute;left:0;bottom:40px;width:460px;max-height:66vh;
+  background:#150f07;
+  border:1px solid rgba(255,190,60,0.35);
+  box-shadow:0 -4px 24px rgba(0,0,0,0.6);
+  display:none;z-index:900;overflow:hidden;
 }
 #start-menu.open{display:flex;}
+#start-menu .sm-rail{
+  width:42px;flex-shrink:0;background:#0e0a04;display:flex;flex-direction:column;align-items:center;
+  padding:10px 0;gap:14px;border-right:1px solid rgba(255,180,0,0.12);
+}
+#start-menu .sm-rail .sr-btn{
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  color:var(--amber-dim);font-size:14px;cursor:default;
+}
+#start-menu .sm-rail .sr-btn.power{margin-top:auto;color:var(--amber-dim);cursor:pointer;}
+#start-menu .sm-rail .sr-btn.power:hover{background:var(--danger);color:#fff;}
+#start-menu .sm-main{flex:1;display:flex;flex-direction:column;min-width:0;}
 #start-menu .sm-head{
-  padding:12px 14px 10px;font-family:var(--ui-font);font-size:11px;letter-spacing:1px;
-  color:var(--amber-dim);border-bottom:1px solid rgba(255,180,0,0.2);
+  padding:12px 14px 8px;font-family:var(--ui-font);font-size:10.5px;letter-spacing:1px;
+  color:var(--amber-dim);
   display:flex;justify-content:space-between;align-items:center;
 }
 #start-menu .sm-search{
-  margin:8px 12px;background:#0b0904;border:1px solid var(--amber-dim);border-radius:3px;
+  margin:0 12px 8px;background:#0b0904;border:1px solid var(--amber-dim);
   color:var(--amber);font-family:var(--ui-font);font-size:12px;padding:6px 8px;
 }
-#start-menu .sm-list{overflow-y:auto;padding:4px 6px;flex:1;}
+#start-menu .sm-body{display:flex;flex:1;min-height:0;}
+#start-menu .sm-list{overflow-y:auto;padding:2px 6px;flex:1;min-width:0;border-right:1px solid rgba(255,180,0,0.1);}
 .sm-item{
-  display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:3px;cursor:pointer;
-  font-family:var(--ui-font);font-size:12.5px;color:var(--amber);
+  display:flex;align-items:center;gap:10px;padding:6px 8px;cursor:pointer;
+  font-family:var(--ui-font);font-size:12px;color:var(--amber);
 }
-.sm-item:hover{background:linear-gradient(180deg, rgba(255,200,90,0.28), rgba(255,160,0,0.12));}
+.sm-item:hover{background:var(--win10-hover);}
 .sm-item .g{
-  width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;
-  background:linear-gradient(160deg, rgba(60,48,20,0.9), rgba(20,16,8,0.9));border:1px solid rgba(255,180,0,0.35);flex-shrink:0;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;
+  background:#1c1810;border:1px solid rgba(255,180,0,0.3);flex-shrink:0;
 }
+#start-menu .sm-tiles{
+  width:180px;flex-shrink:0;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  align-content:flex-start;overflow-y:auto;
+}
+.sm-tile{
+  aspect-ratio:1;background:#1c1810;border:1px solid rgba(255,180,0,0.3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;
+  color:var(--amber);font-family:var(--ui-font);
+}
+.sm-tile:hover{background:var(--win10-hover-strong);border-color:var(--amber);}
+.sm-tile .g{font-size:16px;}
+.sm-tile .l{font-size:8.5px;text-align:center;line-height:1.2;padding:0 4px;color:var(--amber-dim);}
 #start-menu .sm-foot{
-  display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
-  border-top:1px solid rgba(255,180,0,0.2);background:rgba(0,0,0,0.25);
+  display:flex;justify-content:space-between;align-items:center;padding:6px 12px;
+  border-top:1px solid rgba(255,180,0,0.12);background:rgba(0,0,0,0.3);
 }
-#shutdown-btn{
-  font-family:var(--ui-font);font-size:11.5px;color:#fff;background:linear-gradient(180deg,#7a1015,#3d0508);
-  border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:5px 12px;cursor:pointer;letter-spacing:0.5px;
-}
-#shutdown-btn:hover{filter:brightness(1.2);}
-#sm-user{font-family:var(--ui-font);font-size:11px;color:var(--amber-dim);}
+#sm-user{font-family:var(--ui-font);font-size:10.5px;color:var(--amber-dim);}
 
 @media(max-width:640px){
   .window{width:88vw;}
@@ -376,28 +503,30 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
   .window{width:340px;min-width:240px;}
   .window .content{max-height:38vh;font-size:12.5px;padding:10px 12px;}
   .window .content h3{font-size:16px;margin:0 0 6px;}
-  .titlebar{padding:4px 4px 4px 8px;}
+  .titlebar{height:26px;padding:0 0 0 8px;}
   .titlebar .tb-title{font-size:11px;}
-  .tb-btn{width:20px;height:17px;font-size:10px;}
+  .tb-btn{width:30px;height:26px;font-size:10px;}
 
   #icons{top:12px;left:10px;gap:3px;height:calc(100vh - 78px);max-height:calc(100vh - 78px);}
   .icon{width:66px;padding:4px 3px;}
   .icon .glyph{width:34px;height:34px;font-size:15px;margin-bottom:4px;}
   .icon span{font-size:10px;}
 
-  #taskbar{height:36px;}
-  #start-btn{width:44px;}
-  #start-orb{width:26px;height:26px;font-size:12px;}
+  #taskbar{height:34px;}
+  #start-btn{width:40px;}
+  #start-orb{width:13px;height:13px;}
+  #tb-search,#tb-taskview{display:none;}
   #taskbar-apps{padding:3px 3px;gap:2px;}
   .tbar-app{min-width:30px;max-width:110px;padding:0 6px;font-size:10.5px;}
   #status{gap:8px;font-size:9.5px;padding:0 8px;}
   #status span:not(#clock){display:none;}
   #clock{font-size:10.5px;}
 
-  #start-menu{width:220px;max-height:52vh;bottom:38px;}
+  #start-menu{width:230px;max-height:52vh;bottom:34px;}
+  #start-menu .sm-rail,#start-menu .sm-tiles{display:none;}
   #start-menu .sm-head{padding:8px 10px 6px;font-size:10px;}
   .sm-item{padding:5px 6px;font-size:11px;}
-  .sm-item .g{width:22px;height:22px;font-size:12px;}
+  .sm-item .g{width:20px;height:20px;font-size:11px;}
 
   #boot-caption{font-size:11px;margin-bottom:22px;}
   #orb-assemble{gap:8px;margin-bottom:22px;}
@@ -759,27 +888,194 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
     </div>
   </div>
 
+  <!-- ===================== SUPRIMENTOS ===================== -->
+  <div class="window win-paper" id="win-suprimentos" style="top:70px;left:180px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">▤</span><span class="tb-title">SUPRIMENTOS.inv — ARMAZÉM DE BASE</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-suprimentos">─</span>
+        <span class="tb-btn max" data-max="win-suprimentos">□</span>
+        <span class="tb-btn close" data-close="win-suprimentos">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>Inventário Ativo — Base Nível 0</h3>
+      <div class="role"><b>Almanaque</b> — quantidade: 1 (não confiscar). Único item que sempre retorna à mochila do portador, mesmo após relatos de perda total de equipamento.</div>
+      <div class="role"><b>Rações Nível 0 (lata)</b> — 214 un. Validade: indeterminada. Sabor: "nenhum registrado por escrito duas vezes seguidas".</div>
+      <div class="role"><b>Kit de primeiros socorros</b> — 38 un. Reposição semanal recomendada; consumo real: irregular.</div>
+      <div class="role"><b>Corda de nylon (50m)</b> — 61 un. Uso obrigatório em expedições a Níveis com relatos de alteração de perspectiva.</div>
+      <div class="role"><b>Rádio de campo (canal fixo)</b> — 19 un. Três unidades atualmente listadas como "em uso", sem operador correspondente nos registros.</div>
+      <hr class="div">
+      <p style="font-size:12px;">Nota do almoxarife: contagem física não bate com o sistema há 3 ciclos de auditoria consecutivos. Diferença permanece dentro da "margem aceitável" definida pelo Conselho.</p>
+    </div>
+  </div>
+
+  <!-- ===================== DIÁRIO DE CAMPO ===================== -->
+  <div class="window win-terminal" id="win-diario" style="top:100px;left:240px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">✎</span><span class="tb-title">DIÁRIO_CAMPO.log — ENTRADAS RECENTES</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-diario">─</span>
+        <span class="tb-btn max" data-max="win-diario">□</span>
+        <span class="tb-btn close" data-close="win-diario">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>REGISTRO PESSOAL — SINCRONIZADO AUTOMATICAMENTE</h3>
+      <p><b>DIA 118:</b> Segunda semana seguida sem notícia da equipe Delta. Base Central diz "aguardar". Ninguém pergunta o que estamos aguardando.</p>
+      <p><b>DIA 124:</b> Encontrei uma porta no corredor de manutenção que não estava lá ontem. Reportei. Consta como "já catalogada desde a fundação da base".</p>
+      <p><b>DIA 131:</b> O zumbido fluorescente mudou de tom essa semana. Ninguém mais parece notar, exceto eu e o novo recruta.</p>
+      <p><b>DIA 132:</b> O novo recruta não apareceu para o turno hoje. Ficha dele ainda consta como ativa no sistema.</p>
+      <hr class="div">
+      <p style="font-size:12px;color:var(--amber-dim);">[entradas anteriores a DIA 100 foram arquivadas por ordem administrativa]</p>
+    </div>
+  </div>
+
+  <!-- ===================== EQUIPE ===================== -->
+  <div class="window win-paper" id="win-equipe" style="top:130px;left:300px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">☷</span><span class="tb-title">EQUIPE.dat — ESCALA ATIVA</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-equipe">─</span>
+        <span class="tb-btn max" data-max="win-equipe">□</span>
+        <span class="tb-btn close" data-close="win-equipe">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>Esquadrão de Campo — designação "ECO-7"</h3>
+      <div class="role"><b>Capitã R. Aslan</b> — Classe B. No comando desde a extinção do esquadrão anterior. Não fala sobre isso.</div>
+      <div class="role"><b>Operador T. Meirelles</b> — Classe C. Fica na base, coordena rádio. Único membro original do esquadrão que ainda está na escala.</div>
+      <div class="role"><b>Exploradora J. Andrade</b> — Classe D. Especialista em Níveis instáveis. Reportou três "quase-desaparecimentos" este trimestre.</div>
+      <div class="role"><b>Explorador ??? </b> — Classe D. Nome ilegível no arquivo original. Continua recebendo suprimentos normalmente.</div>
+      <hr class="div">
+      <p style="font-size:12px;">Status geral do esquadrão: <span style="color:var(--danger);">OPERACIONAL COM RESSALVAS</span>.</p>
+    </div>
+  </div>
+
+  <!-- ===================== ENTIDADES ===================== -->
+  <div class="window win-paper" id="win-entidades" style="top:80px;left:340px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">☠</span><span class="tb-title">ENTIDADES.cls — CATÁLOGO DE CAMPO</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-entidades">─</span>
+        <span class="tb-btn max" data-max="win-entidades">□</span>
+        <span class="tb-btn close" data-close="win-entidades">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>Classificação de Risco — resumo público</h3>
+      <div class="role"><b>Caçadores (classe hostil-ativa)</b> — perseguem por som. Protocolo padrão: silêncio absoluto, movimento lento, nunca correr em linha reta.</div>
+      <div class="role"><b>Rostos Sorridentes (classe hostil-passiva)</b> — imitam vozes conhecidas para atrair. Protocolo: nunca responder a chamados não confirmados por rádio.</div>
+      <div class="role"><b>Andarilhos de Corredor (classe indeterminada)</b> — comportamento não hostil registrado, mas nenhum explorador relatou uma segunda visão da mesma entidade.</div>
+      <hr class="div">
+      <p style="font-size:12px;">Entradas classificadas acima do Nível C de acesso foram removidas deste terminal por diretriz do Conselho.</p>
+      <p class="stamp">CATÁLOGO INCOMPLETO</p>
+    </div>
+  </div>
+
+  <!-- ===================== MERCADO NEGRO ===================== -->
+  <div class="window win-terminal" id="win-mercado" style="top:110px;left:380px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">⚖</span><span class="tb-title">MERCADO_NEGRO.exe — REDE DE TROCAS NÃO-OFICIAL</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-mercado">─</span>
+        <span class="tb-btn max" data-max="win-mercado">□</span>
+        <span class="tb-btn close" data-close="win-mercado">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>CANAL NÃO OFICIAL — MONITORADO INFORMALMENTE</h3>
+      <p>[ANÔNIMO_04]: troco 3 latas Nível 0 por 1 carga de bateria de rádio. Urgente.</p>
+      <p>[ANÔNIMO_11]: alguém tem mapa atualizado do Nível !? Pago bem, em suprimento ou informação.</p>
+      <p>[ANÔNIMO_04]: negociação fechada. Obrigado, S.I.G.O. nunca saberá.</p>
+      <p>[ANÔNIMO_19]: recompensa por qualquer informação sobre a equipe Delta. Recompensa: o que você precisar.</p>
+      <hr class="div">
+      <p style="font-size:12px;color:var(--amber-dim);">[este canal não é reconhecido oficialmente pelo S.I.G.O. — uso por conta e risco do operador]</p>
+    </div>
+  </div>
+
+  <!-- ===================== CONFIGURAÇÕES ===================== -->
+  <div class="window win-terminal" id="win-config" style="top:140px;left:420px;width:400px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">⚙</span><span class="tb-title">CONFIGURAÇÕES DO SISTEMA</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-config">─</span>
+        <span class="tb-btn max" data-max="win-config">□</span>
+        <span class="tb-btn close" data-close="win-config">✕</span>
+      </div>
+    </div>
+    <div class="content">
+      <h3>Sobre este terminal</h3>
+      <p><b>Sistema:</b> S.I.G.O. OS v2.6 — Terminal de Campo</p>
+      <p><b>Build:</b> ECO-7.2.6.118</p>
+      <p><b>Nível de acesso atual:</b> OPERACIONAL</p>
+      <hr class="div">
+      <h3>Atualizações</h3>
+      <p>Uma nova versão do sistema está disponível para este terminal.</p>
+      <div style="margin-top:8px;">
+        <span class="stamp" style="border-color:var(--amber);color:var(--amber);cursor:pointer;" id="config-check-update">VERIFICAR ATUALIZAÇÕES</span>
+      </div>
+      <p style="font-size:12px;color:var(--amber-dim);margin-top:14px;">[downgrade para versões anteriores não é suportado por este terminal]</p>
+    </div>
+  </div>
+
   <!-- ===================== START MENU ===================== -->
   <div id="start-menu">
-    <div class="sm-head"><span>S.I.G.O. OS v2.6</span><span id="sm-user">OPERADOR // NÍVEL 0</span></div>
-    <input class="sm-search" type="text" placeholder="Pesquisar arquivos e programas..." disabled>
-    <div class="sm-list" id="sm-list"></div>
-    <div class="sm-foot">
-      <span id="sm-user2" style="font-family:var(--ui-font);font-size:11px;color:var(--amber-dim);">uplink: instável</span>
-      <button id="shutdown-btn">DESLIGAR</button>
+    <div class="sm-rail">
+      <span class="sr-btn" title="Operador">☖</span>
+      <span class="sr-btn" title="Configurações">⚙</span>
+      <span class="sr-btn power" id="shutdown-btn" title="Desligar">⏻</span>
+    </div>
+    <div class="sm-main">
+      <div class="sm-head"><span>S.I.G.O. OS v2.6</span><span id="sm-user">OPERADOR // NÍVEL 0</span></div>
+      <input class="sm-search" type="text" placeholder="Pesquisar arquivos e programas..." disabled>
+      <div class="sm-body">
+        <div class="sm-list" id="sm-list"></div>
+        <div class="sm-tiles" id="sm-tiles"></div>
+      </div>
+      <div class="sm-foot">
+        <span id="sm-user2" style="font-family:var(--ui-font);font-size:11px;color:var(--amber-dim);">uplink: instável</span>
+      </div>
     </div>
   </div>
 
   <div id="taskbar">
-    <div id="start-btn"><div id="start-orb">S</div></div>
+    <div id="start-btn"><div id="start-orb"><span></span><span></span><span></span><span></span></div></div>
     <div id="taskbar-sep"></div>
+    <div id="tb-search"><span class="ico">⌕</span><span>Pesquisar</span></div>
+    <div id="tb-taskview" title="Visão de Tarefas">▭</div>
     <div id="taskbar-apps"></div>
     <div id="status">
       <span class="jitter">SINAL: <span class="sig" id="sig-val">INSTÁVEL</span></span>
       <span>ESTABILIDADE: <span id="stab-val">62%</span></span>
+      <span id="tray-update" title="Atualizações disponíveis">⟳<span id="tray-update-dot"></span></span>
       <span id="clock">00:00:00</span>
     </div>
     <div id="show-desktop" title="Mostrar área de trabalho"></div>
+  </div>
+
+  <!-- ===================== POPUP DE ATUALIZAÇÃO — SISTEMA 11 ===================== -->
+  <div id="update-popup">
+    <div class="up-head"><span>⟳</span><span>Atualização do Sistema</span><span class="up-x" id="up-close">✕</span></div>
+    <div class="up-body">
+      <h4>SISTEMA 11 já está disponível</h4>
+      <p>Uma nova versão da sua realidade operacional está pronta para instalação. Recomendamos migrar agora para continuar recebendo suporte e correções de integridade.</p>
+      <p class="up-countdown" id="up-countdown">Instalação automática em 00:45</p>
+    </div>
+    <div class="up-actions">
+      <button class="up-secondary" id="up-later">Lembrar mais tarde</button>
+      <button class="up-primary" id="up-now">Atualizar agora</button>
+    </div>
+  </div>
+
+  <!-- ===================== TELA DE INSTALAÇÃO — SISTEMA 11 ===================== -->
+  <div id="update-install">
+    <div class="ui-logo">⊞ SISTEMA 11</div>
+    <div class="ui-caption">PREPARANDO ATUALIZAÇÃO — NÃO DESLIGUE O TERMINAL</div>
+    <div class="ui-bar-track"><div class="ui-bar-fill" id="ui-bar-fill"></div></div>
+    <div class="ui-log" id="ui-log"></div>
+    <div class="ui-error" id="ui-error">FALHA NA ATUALIZAÇÃO — ESTE NÍVEL NÃO PERMITE SAÍDA.<br>Revertendo para S.I.G.O. OS v2.6...</div>
+    <button class="ui-ok" id="ui-ok">VOLTAR AO TERMINAL</button>
   </div>
 </div>
 
@@ -798,6 +1094,12 @@ const APPS = [
   {id:'win-objetos',    label:'OBJETOS.inv',        glyph:'◇'},
   {id:'win-mensagens',  label:'MENSAGENS.msg',      glyph:'✉'},
   {id:'win-mapa',       label:'MAPA.exe',           glyph:'⌘'},
+  {id:'win-suprimentos',label:'SUPRIMENTOS.inv',    glyph:'▤'},
+  {id:'win-diario',     label:'DIÁRIO_CAMPO.log',   glyph:'✎'},
+  {id:'win-equipe',     label:'EQUIPE.dat',         glyph:'☷'},
+  {id:'win-entidades',  label:'ENTIDADES.cls',      glyph:'☠'},
+  {id:'win-mercado',    label:'MERCADO_NEGRO.exe',  glyph:'⚖'},
+  {id:'win-config',     label:'CONFIGURAÇÕES',      glyph:'⚙'},
 ];
 
 // ---------- BOOT SEQUENCE ----------
@@ -838,6 +1140,8 @@ document.getElementById('boot').addEventListener('click', finishBoot);
 // ---------- MONTAGEM DE ÍCONES / MENU INICIAR ----------
 const iconsEl = document.getElementById('icons');
 const smList = document.getElementById('sm-list');
+const smTiles = document.getElementById('sm-tiles');
+const PINNED_IDS = ['win-terminal','win-expedicoes','win-radio','win-niveis','win-mapa','win-restrito','win-entidades','win-mercado'];
 APPS.forEach(app=>{
   const icon = document.createElement('div');
   icon.className='icon';
@@ -851,6 +1155,14 @@ APPS.forEach(app=>{
   smItem.innerHTML = `<span class="g">${app.glyph}</span><span>${app.label}</span>`;
   smItem.addEventListener('click', ()=>{ openWin(app.id); closeStartMenu(); });
   smList.appendChild(smItem);
+
+  if(PINNED_IDS.includes(app.id)){
+    const tile = document.createElement('div');
+    tile.className='sm-tile';
+    tile.innerHTML = `<span class="g">${app.glyph}</span><span class="l">${app.label}</span>`;
+    tile.addEventListener('click', ()=>{ openWin(app.id); closeStartMenu(); });
+    smTiles.appendChild(tile);
+  }
 });
 
 // ---------- GERENCIAMENTO DE JANELAS ----------
@@ -1102,6 +1414,112 @@ document.querySelectorAll('#mapa-svg .node').forEach(node=>{
     node.classList.add('active');
     document.getElementById('mapa-desc').textContent = mapaDescs[node.dataset.lvl] || '';
   });
+});
+
+// ---------- POPUP DE ATUALIZAÇÃO: SISTEMA 11 ----------
+const updatePopup = document.getElementById('update-popup');
+const upCountdownEl = document.getElementById('up-countdown');
+let upCountdownTimer = null;
+let upAppearances = 0;
+
+function fmtCountdown(s){
+  const m = String(Math.floor(s/60)).padStart(2,'0');
+  const r = String(s%60).padStart(2,'0');
+  return m+':'+r;
+}
+
+function startUpCountdown(){
+  clearInterval(upCountdownTimer);
+  let secs = upAppearances===0 ? 45 : 20;
+  upCountdownEl.textContent = 'Instalação automática em ' + fmtCountdown(secs);
+  upCountdownTimer = setInterval(()=>{
+    secs--;
+    if(secs<=0){
+      clearInterval(upCountdownTimer);
+      upCountdownEl.textContent = 'Iniciando instalação...';
+      setTimeout(()=> startInstall(), 600);
+      return;
+    }
+    upCountdownEl.textContent = 'Instalação automática em ' + fmtCountdown(secs);
+  }, 1000);
+}
+
+function showUpdatePopup(){
+  upAppearances++;
+  updatePopup.classList.toggle('urgent', upAppearances>1);
+  updatePopup.classList.add('show');
+  startUpCountdown();
+}
+function hideUpdatePopup(){
+  updatePopup.classList.remove('show');
+  clearInterval(upCountdownTimer);
+}
+
+document.getElementById('tray-update').addEventListener('click', ()=>{
+  if(updatePopup.classList.contains('show')) hideUpdatePopup();
+  else showUpdatePopup();
+});
+document.getElementById('up-close').addEventListener('click', ()=>{
+  hideUpdatePopup();
+  scheduleReappear();
+});
+document.getElementById('up-later').addEventListener('click', ()=>{
+  hideUpdatePopup();
+  scheduleReappear();
+});
+document.getElementById('up-now').addEventListener('click', ()=>{
+  hideUpdatePopup();
+  startInstall();
+});
+document.getElementById('config-check-update').addEventListener('click', ()=>{
+  showUpdatePopup();
+});
+
+function scheduleReappear(){
+  setTimeout(()=>{ if(document.getElementById('desktop').classList.contains('active')) showUpdatePopup(); }, 35000 + Math.random()*15000);
+}
+
+// primeira aparição, pouco depois do boot
+setTimeout(()=>{ showUpdatePopup(); }, 9000);
+
+// ---------- TELA DE INSTALAÇÃO FALSA ----------
+const installLines = [
+  "Preparando pacotes de atualização...........[OK]",
+  "Fazendo backup dos protocolos atuais........[OK]",
+  "Substituindo interface por SISTEMA 11.......[EM ANDAMENTO]",
+  "Realinhando corredores para o novo padrão...[EM ANDAMENTO]",
+  "Migrando registros de NÍVEL 0...............[INSTÁVEL]",
+  "Verificando permissão de saída do Nível.....[NEGADA]",
+];
+function startInstall(){
+  const overlay = document.getElementById('update-install');
+  const fill = document.getElementById('ui-bar-fill');
+  const log = document.getElementById('ui-log');
+  overlay.classList.remove('error');
+  overlay.classList.add('show');
+  log.textContent='';
+  fill.style.width='0%';
+  requestAnimationFrame(()=>{ fill.style.width='100%'; });
+
+  let idx=0;
+  const logTimer = setInterval(()=>{
+    if(idx>=installLines.length){ clearInterval(logTimer); return; }
+    log.textContent += (idx>0?'\n':'') + installLines[idx];
+    idx++;
+  }, 560);
+
+  setTimeout(()=>{
+    clearInterval(logTimer);
+    overlay.classList.add('error');
+    document.getElementById('flicker').style.animation='none';
+    void document.getElementById('flicker').offsetWidth;
+    document.getElementById('flicker').style.animation='flickerFx 0.4s steps(2) 3';
+  }, 3800);
+}
+document.getElementById('ui-ok').addEventListener('click', ()=>{
+  document.getElementById('update-install').classList.remove('show');
+  document.getElementById('update-install').classList.remove('error');
+  scheduleReappear();
 });
 </script>
 </body>
