@@ -1323,6 +1323,26 @@ body.win11 #desktop::before{
     </div>
   </div>
 
+  <!-- ===================== NÃO_PISQUE.exe — SEGUNDA JANELA ESCONDIDA (easter egg) ===================== -->
+  <div class="window win-terminal" id="win-blink" style="top:100px;left:320px;width:340px;">
+    <div class="titlebar">
+      <div class="tb-left"><span class="tb-icon">◉</span><span class="tb-title">NÃO_PISQUE.exe — ORIGEM DESCONHECIDA</span></div>
+      <div class="tb-controls">
+        <span class="tb-btn min" data-min="win-blink">─</span>
+        <span class="tb-btn max" data-max="win-blink">□</span>
+        <span class="tb-btn close" data-close="win-blink">✕</span>
+      </div>
+    </div>
+    <div class="content" style="padding:10px 12px;">
+      <p style="font-size:11.5px;color:var(--amber-dim);margin:0 0 8px;">avance apenas quando os olhos estiverem fechados. clique em AVANÇAR ou pressione espaço.</p>
+      <canvas id="blink-canvas" width="300" height="180" style="background:#050402;display:block;border:1px solid rgba(255,180,0,0.3);"></canvas>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+        <button id="blink-advance" style="background:var(--amber-dim);border:none;color:#000;padding:6px 16px;font-family:'Share Tech Mono',monospace;font-weight:bold;cursor:pointer;">AVANÇAR</button>
+        <p id="blink-status" style="font-size:12px;margin:0;">distância: 0m</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== START MENU ===================== -->
   <div id="start-menu">
     <div class="sm-rail">
@@ -2272,6 +2292,123 @@ function initNoclipGame(){
       cx.fillStyle='rgba(0,0,0,0.65)'; cx.fillRect(0,0,canvas.width,canvas.height);
       cx.fillStyle='#ffb400'; cx.font='13px monospace'; cx.textAlign='center';
       cx.fillText('VOCÊ FOI ALCANÇADO', canvas.width/2, canvas.height/2-8);
+      cx.font='11px monospace'; cx.fillStyle='#8a6a1e';
+      cx.fillText('pressione R para tentar de novo', canvas.width/2, canvas.height/2+12);
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+
+// ---------- EASTER EGG #2: NÃO PISQUE (clique 7x no relógio da bandeja) ----------
+let clockClicks = 0;
+let clockClickTimer = null;
+document.getElementById('clock').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  clockClicks++;
+  clearTimeout(clockClickTimer);
+  clockClickTimer = setTimeout(()=>{ clockClicks = 0; }, 2600);
+  if(clockClicks >= 7){
+    clockClicks = 0;
+    openBlinkGame();
+  }
+});
+
+function openBlinkGame(){
+  const win = document.getElementById('win-blink');
+  document.querySelectorAll('.window').forEach(w=>w.classList.remove('active'));
+  win.classList.add('open','active');
+  win.style.display='flex';
+  win.style.zIndex = ++topZ;
+  requestAnimationFrame(()=> clampWinToViewport(win));
+  pushToast('NÃO_PISQUE.exe', 'Alguém ficou olhando o relógio de perto demais. Acesso concedido.');
+  playStatic(0.5);
+  initBlinkGame();
+}
+
+let blinkRunning = false;
+function initBlinkGame(){
+  if(blinkRunning) return;
+  blinkRunning = true;
+  const canvas = document.getElementById('blink-canvas');
+  const cx = canvas.getContext('2d');
+  const statusEl = document.getElementById('blink-status');
+  const advanceBtn = document.getElementById('blink-advance');
+
+  let distance = 0;
+  let gameOver = false;
+  let eyesOpen = false;
+  let nextToggle = 0;
+  let startTime = performance.now();
+  let bestDist = parseFloat(localStorage.getItem('blink-best')||'0');
+
+  function scheduleToggle(now){
+    const elapsed = (now-startTime)/1000;
+    const minGap = Math.max(260, 950 - elapsed*16);
+    const maxGap = Math.max(560, 1900 - elapsed*22);
+    nextToggle = now + minGap + Math.random()*(maxGap-minGap);
+  }
+
+  function tryAdvance(){
+    if(gameOver) return;
+    if(eyesOpen){
+      gameOver = true;
+      if(distance > bestDist){ bestDist = distance; localStorage.setItem('blink-best', bestDist.toFixed(0)); }
+      playStatic(0.5);
+    } else {
+      distance += 6 + Math.random()*8;
+    }
+  }
+  advanceBtn.onclick = tryAdvance;
+
+  const keyHandler = (e)=>{
+    if(e.code === 'Space'){ e.preventDefault(); tryAdvance(); }
+    else if((e.key==='r'||e.key==='R') && gameOver){
+      distance = 0; gameOver = false; eyesOpen = false;
+      startTime = performance.now();
+      scheduleToggle(startTime);
+    }
+  };
+  document.addEventListener('keydown', keyHandler);
+
+  scheduleToggle(performance.now());
+
+  function loop(now){
+    const win = document.getElementById('win-blink');
+    if(!win.classList.contains('open') || win.style.display==='none'){
+      document.removeEventListener('keydown', keyHandler);
+      advanceBtn.onclick = null;
+      blinkRunning = false;
+      return;
+    }
+    if(!gameOver && now >= nextToggle){
+      eyesOpen = !eyesOpen;
+      scheduleToggle(now);
+    }
+    statusEl.textContent = 'distância: '+Math.floor(distance)+'m  ·  recorde: '+Math.floor(bestDist)+'m';
+
+    cx.fillStyle='#050402'; cx.fillRect(0,0,canvas.width,canvas.height);
+    cx.strokeStyle='rgba(255,180,0,0.15)'; cx.strokeRect(0.5,0.5,canvas.width-1,canvas.height-1);
+
+    const ex = canvas.width/2, ey = canvas.height/2 - 14;
+    cx.lineWidth = 2;
+    if(eyesOpen){
+      cx.strokeStyle = '#c1121f';
+      cx.beginPath(); cx.ellipse(ex, ey, 48, 24, 0, 0, Math.PI*2); cx.stroke();
+      cx.fillStyle = '#c1121f'; cx.beginPath(); cx.arc(ex, ey, 11, 0, Math.PI*2); cx.fill();
+      cx.fillStyle = '#000'; cx.beginPath(); cx.arc(ex, ey, 4, 0, Math.PI*2); cx.fill();
+    } else {
+      cx.strokeStyle = '#5a7d4a';
+      cx.beginPath(); cx.moveTo(ex-48, ey); cx.lineTo(ex+48, ey); cx.stroke();
+    }
+    cx.font='11px monospace'; cx.textAlign='center';
+    cx.fillStyle = eyesOpen ? '#c1121f' : '#5a7d4a';
+    cx.fillText(eyesOpen ? 'OLHOS ABERTOS — PARE' : 'OLHOS FECHADOS — AVANCE', ex, ey+58);
+
+    if(gameOver){
+      cx.fillStyle='rgba(0,0,0,0.65)'; cx.fillRect(0,0,canvas.width,canvas.height);
+      cx.fillStyle='#ffb400'; cx.font='13px monospace'; cx.textAlign='center';
+      cx.fillText('VOCÊ FOI VISTO', canvas.width/2, canvas.height/2-8);
       cx.font='11px monospace'; cx.fillStyle='#8a6a1e';
       cx.fillText('pressione R para tentar de novo', canvas.width/2, canvas.height/2+12);
     }
