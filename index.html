@@ -257,6 +257,34 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 .role{margin-bottom:10px;}
 .role b{color:var(--amber);}
 
+/* ===================== CÂMERAS — GRADE DE MONITORAMENTO ===================== */
+.cam-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.cam-tile{position:relative;aspect-ratio:4/3;background:#000;border:1px solid rgba(90,125,74,0.45);overflow:hidden;border-radius:1px;}
+.cam-tile.lost{border-color:rgba(193,18,31,0.55);}
+.cam-tile canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;opacity:0.92;}
+.cam-tile::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%);}
+.cam-tile::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,0.35) 0 1px, transparent 1px 3px);mix-blend-mode:multiply;}
+.cam-status-chip{position:absolute;top:4px;left:4px;z-index:4;font-size:8.5px;letter-spacing:0.5px;
+  padding:1px 5px;font-family:var(--ui-font);background:rgba(0,0,0,0.55);color:var(--ok);}
+.cam-tile.lost .cam-status-chip{color:var(--danger);}
+.cam-hud{position:absolute;inset:0;z-index:3;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:4px 6px;font-family:var(--ui-font);}
+.cam-hud-top{display:flex;justify-content:flex-end;font-size:9px;color:#eee;text-shadow:0 1px 2px #000;}
+.cam-hud-bottom{font-size:9px;color:#eee;text-shadow:0 1px 2px #000;}
+.cam-hud-bottom .cam-id{display:block;font-weight:600;letter-spacing:0.5px;}
+.cam-hud-bottom .cam-label{display:block;opacity:0.85;font-size:8.5px;}
+.cam-rec{display:flex;align-items:center;gap:3px;color:#ff5555;margin-right:6px;}
+.cam-rec .dot{width:6px;height:6px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 4px #ff3b3b;animation:camRecBlink 1.2s steps(1) infinite;}
+@keyframes camRecBlink{50%{opacity:0.15;}}
+.cam-clock{font-variant-numeric:tabular-nums;opacity:0.9;}
+.cam-noSignal{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;background:rgba(0,0,0,0.3);}
+.cam-noSignal span{font-family:'VT323',monospace;font-size:15px;color:var(--danger);letter-spacing:2px;text-shadow:0 0 6px rgba(193,18,31,0.6);}
+.cam-noSignal small{font-family:var(--ui-font);font-size:8.5px;color:rgba(255,255,255,0.55);}
+.cam-blip{position:absolute;z-index:4;width:8px;height:8px;border-radius:50%;background:rgba(255,80,80,0.85);box-shadow:0 0 8px rgba(255,60,60,0.7);opacity:0;transition:opacity .3s ease;}
+.cam-blip.show{opacity:1;}
+.cam-foot{font-size:11px;color:var(--amber-dim);display:flex;justify-content:space-between;}
+
 /* Restricted / lock window */
 #win-restrito .content, #win-restrito2 .content{background:#050403;}
 #lock-screen{text-align:center;padding:10px 0;}
@@ -1244,7 +1272,7 @@ body.win11 #desktop::before{
   </div>
 
   <!-- ===================== CÂMERAS ===================== -->
-  <div class="window win-terminal" id="win-cameras" style="top:100px;left:200px;width:440px;">
+  <div class="window win-terminal" id="win-cameras" style="top:100px;left:200px;width:490px;">
     <div class="titlebar">
       <div class="tb-left"><span class="tb-icon">◎</span><span class="tb-title">CÂMERAS.exe — MONITORAMENTO AO VIVO</span></div>
       <div class="tb-controls">
@@ -1254,11 +1282,48 @@ body.win11 #desktop::before{
       </div>
     </div>
     <div class="content">
-      <h3>FEED — 4 CÂMERAS ATIVAS</h3>
-      <p>CAM-01 [Corredor de Entrada] — <span style="color:var(--ok);">SINAL OK</span> — sem movimento nos últimos 40min.</p>
-      <p>CAM-02 [Almoxarifado] — <span style="color:var(--ok);">SINAL OK</span> — movimento detectado às 03:12, sem operador escalado no horário.</p>
-      <p>CAM-03 [Corredor de Manutenção] — <span style="color:var(--danger);">SINAL PERDIDO</span> — última imagem há 6h. Equipe técnica "a caminho".</p>
-      <p>CAM-04 [Portão do Nível 0] — <span style="color:var(--ok);">SINAL OK</span> — <span id="cam04-live">contagem: 0 figuras visíveis</span></p>
+      <h3>FEED — 4 CÂMERAS ATIVAS <span style="color:var(--danger);font-size:12px;font-family:var(--ui-font);">(1 SEM SINAL)</span></h3>
+      <div class="cam-grid">
+        <div class="cam-tile" data-cam="01">
+          <span class="cam-status-chip">● OK</span>
+          <canvas class="cam-feed" width="48" height="32"></canvas>
+          <div class="cam-hud">
+            <div class="cam-hud-top"><span class="cam-rec"><span class="dot"></span>REC</span><span class="cam-clock" data-clock></span></div>
+            <div class="cam-hud-bottom"><span class="cam-id">CAM-01</span><span class="cam-label">Corredor de Entrada</span></div>
+          </div>
+        </div>
+        <div class="cam-tile" data-cam="02">
+          <span class="cam-status-chip">● OK</span>
+          <canvas class="cam-feed" width="48" height="32"></canvas>
+          <div class="cam-hud">
+            <div class="cam-hud-top"><span class="cam-rec"><span class="dot"></span>REC</span><span class="cam-clock" data-clock></span></div>
+            <div class="cam-hud-bottom"><span class="cam-id">CAM-02</span><span class="cam-label">Almoxarifado</span></div>
+          </div>
+          <div class="cam-blip" data-blip02 style="top:58%;left:38%;"></div>
+        </div>
+        <div class="cam-tile lost" data-cam="03">
+          <span class="cam-status-chip">● PERDIDO</span>
+          <canvas class="cam-feed" width="48" height="32"></canvas>
+          <div class="cam-noSignal"><span>SEM SINAL</span><small>última imagem há 6h</small></div>
+          <div class="cam-hud">
+            <div class="cam-hud-top"><span class="cam-rec" style="color:#777;"><span class="dot" style="background:#777;box-shadow:none;animation:none;"></span>REC</span><span class="cam-clock" data-clock></span></div>
+            <div class="cam-hud-bottom"><span class="cam-id">CAM-03</span><span class="cam-label">Corredor de Manutenção</span></div>
+          </div>
+        </div>
+        <div class="cam-tile" data-cam="04">
+          <span class="cam-status-chip">● OK</span>
+          <canvas class="cam-feed" width="48" height="32"></canvas>
+          <div class="cam-hud">
+            <div class="cam-hud-top"><span class="cam-rec"><span class="dot"></span>REC</span><span class="cam-clock" data-clock></span></div>
+            <div class="cam-hud-bottom"><span class="cam-id">CAM-04</span><span class="cam-label">Portão do Nível 0</span></div>
+          </div>
+          <div class="cam-blip" id="cam04-blip" style="top:50%;left:50%;"></div>
+        </div>
+      </div>
+      <div class="cam-foot">
+        <span id="cam04-live">contagem: 0 figuras visíveis</span>
+        <span>retenção: 72h</span>
+      </div>
       <hr class="div">
       <p style="font-size:12px;color:var(--amber-dim);">[gravações têm retenção de 72h. Solicitações de acesso a arquivos antigos devem ser feitas por escrito]</p>
     </div>
@@ -2109,6 +2174,80 @@ setInterval(()=>{
   const el = document.getElementById('cam04-live');
   if(el) el.textContent = cam04States[Math.floor(Math.random()*cam04States.length)];
 }, 6000);
+
+// ---------- GRADE DE CÂMERAS: ruído estático, relógios e blips de movimento ----------
+(function(){
+  const tiles = document.querySelectorAll('#win-cameras .cam-tile');
+  tiles.forEach(tile=>{
+    const canvas = tile.querySelector('canvas.cam-feed');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const lost = tile.classList.contains('lost');
+    function draw(){
+      const grad = ctx.createRadialGradient(w*0.5,h*0.62,1,w*0.5,h*0.6,w*0.78);
+      if(lost){
+        grad.addColorStop(0,'rgba(22,10,10,1)');
+        grad.addColorStop(1,'rgba(4,2,2,1)');
+      } else {
+        grad.addColorStop(0,'rgba(58,46,20,1)');
+        grad.addColorStop(1,'rgba(8,6,3,1)');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,w,h);
+      const speckCount = lost ? 240 : 70;
+      for(let i=0;i<speckCount;i++){
+        const x = Math.random()*w, y = Math.random()*h;
+        const v = Math.random();
+        ctx.fillStyle = lost
+          ? `rgba(255,255,255,${(v*0.14).toFixed(2)})`
+          : `rgba(255,190,60,${(v*0.16).toFixed(2)})`;
+        ctx.fillRect(x,y,1,1);
+      }
+      if(Math.random() < (lost?0.35:0.06)){
+        const gy = Math.random()*h;
+        const gh = 1+Math.random()*(lost?4:2);
+        ctx.fillStyle = lost ? 'rgba(193,18,31,0.35)' : 'rgba(255,190,60,0.3)';
+        ctx.fillRect(0,gy,w,gh);
+      }
+    }
+    draw();
+    setInterval(draw, lost ? 220 : 320 + Math.random()*220);
+  });
+
+  function tickClocks(){
+    const s = new Date().toTimeString().slice(0,8);
+    document.querySelectorAll('#win-cameras .cam-clock').forEach(el=>{ el.textContent = s; });
+  }
+  tickClocks();
+  setInterval(tickClocks, 1000);
+
+  // blip de figura na CAM-04, sincronizado com o contador de texto existente
+  const blip04 = document.getElementById('cam04-blip');
+  function syncBlip04(){
+    if(!blip04) return;
+    const txt = document.getElementById('cam04-live')?.textContent || '';
+    if(txt.includes('1 figura')){
+      blip04.style.top = (28+Math.random()*44)+'%';
+      blip04.style.left = (22+Math.random()*56)+'%';
+      blip04.classList.add('show');
+    } else {
+      blip04.classList.remove('show');
+    }
+  }
+  syncBlip04();
+  setInterval(syncBlip04, 6000);
+
+  // blip ocasional na CAM-02 (eco do evento "figura parada" reportado no log de ambiente)
+  const blip02 = document.querySelector('[data-blip02]');
+  setInterval(()=>{
+    if(!blip02) return;
+    if(Math.random() < 0.22){
+      blip02.classList.add('show');
+      setTimeout(()=>blip02.classList.remove('show'), 1400 + Math.random()*2200);
+    }
+  }, 9000);
+})();
 
 // ---------- TELA OCIOSA ----------
 const idleScreen = document.getElementById('idle-screen');
