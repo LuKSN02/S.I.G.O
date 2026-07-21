@@ -27,7 +27,7 @@
   --win10-hover:rgba(255,190,60,0.16);
   --win10-hover-strong:rgba(255,190,60,0.28);
   --aero-blue-ghost:rgba(255,190,60,0.18); /* eco do azul de fundo, só que âmbar */
-  --ui-font:'Segoe UI','Tahoma',Geneva,Verdana,sans-serif;
+  --ui-font:'Share Tech Mono','VT323',monospace;
 
   /* ---- casca "Sistema 11" (Fluent, cantos arredondados, acrílico) tingida de âmbar ---- */
   --win11-radius:10px;
@@ -149,33 +149,77 @@ html,body{
 }
 #flicker{animation:flickerFx 7s infinite;}
 
-/* ================= DESKTOP ICONS (estilo Win10: flat, sem brilho/bisel) ================= */
-#icons{
-  position:absolute;top:22px;left:20px;
-  display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:6px;z-index:5;
-  height:calc(100vh - 90px);
-  max-height:calc(100vh - 90px);
+/* ================= DASHBOARD (painel de operações — substitui os ícones soltos) ================= */
+#dashboard{
+  position:absolute;inset:0;top:0;
+  z-index:5;
+  overflow-y:auto;overflow-x:hidden;
+  padding:26px clamp(16px,4vw,56px) 40px;
 }
-.icon{
-  width:82px;text-align:center;cursor:pointer;user-select:none;
-  padding:6px 4px;border-radius:2px;
-  border:1px solid transparent;
+#dashboard::-webkit-scrollbar{width:9px;}
+#dashboard::-webkit-scrollbar-thumb{background:var(--amber-dim);}
+.dash-topline{
+  display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px;
+  margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(255,180,0,0.28);
 }
-.icon:hover, .icon:focus-visible{background:var(--win10-hover);border-color:rgba(255,180,0,0.3);}
-.icon:active{background:var(--win10-hover-strong);}
-.icon .glyph{
-  width:42px;height:42px;margin:0 auto 6px;
-  border-radius:2px;
-  background:#1c1810;
-  border:1px solid rgba(255,180,0,0.4);
-  display:flex;align-items:center;justify-content:center;
-  font-size:19px;position:relative;color:var(--amber);
+.dash-title{
+  font-family:'VT323',monospace;font-size:24px;letter-spacing:1.5px;color:var(--amber);
+  text-shadow:0 0 10px rgba(255,180,0,0.25);
+}
+.dash-sub{font-family:var(--ui-font);font-size:11px;letter-spacing:0.5px;color:var(--amber-dim);}
+
+.dash-quick{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px;
+}
+.dash-quick-label{
+  width:100%;font-family:var(--ui-font);font-size:10.5px;letter-spacing:2px;color:var(--amber-dim);
+  margin-bottom:2px;
+}
+.dash-qtile{
+  display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;
+  padding:7px 12px 7px 8px;background:rgba(28,24,16,0.65);
+  border:1px solid rgba(255,180,0,0.3);border-radius:2px;
+}
+.dash-qtile:hover{background:var(--win10-hover-strong);border-color:rgba(255,180,0,0.55);}
+.dash-qtile .g{
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  background:#1c1810;border:1px solid rgba(255,180,0,0.4);font-size:13px;color:var(--amber);flex:none;
+}
+.dash-qtile .l{font-family:var(--ui-font);font-size:11.5px;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap;}
+
+.dash-cat{margin-bottom:28px;}
+.dash-cat-head{
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;
+}
+.dash-cat-glyph{
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,180,0,0.4);color:var(--amber);font-size:13px;background:rgba(28,24,16,0.5);flex:none;
+}
+.dash-cat-title{font-family:'VT323',monospace;font-size:18px;letter-spacing:1.5px;color:var(--amber);}
+.dash-cat-count{font-family:var(--ui-font);font-size:10px;color:var(--amber-dim);letter-spacing:1px;}
+.dash-cat-line{flex:1;height:1px;background:linear-gradient(90deg, rgba(255,180,0,0.25), transparent);}
+
+.dash-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(180px,1fr));gap:10px;
+}
+.dash-tile{
+  display:flex;flex-direction:column;gap:6px;cursor:pointer;user-select:none;
+  padding:10px 12px;background:rgba(20,17,10,0.55);
+  border:1px solid rgba(255,180,0,0.22);border-radius:2px;
+  transition:background 0.12s, border-color 0.12s;
+}
+.dash-tile:hover, .dash-tile:focus-visible{background:var(--win10-hover);border-color:rgba(255,180,0,0.55);}
+.dash-tile:active{background:var(--win10-hover-strong);}
+.dash-tile-top{display:flex;align-items:center;gap:8px;}
+.dash-tile .g{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex:none;
+  background:#1c1810;border:1px solid rgba(255,180,0,0.4);font-size:15px;color:var(--amber);
   box-shadow:0 1px 3px rgba(0,0,0,0.5);
 }
-.icon span{
-  font-family:var(--ui-font);font-size:11.5px;letter-spacing:0.2px;display:block;color:#fff;
-  text-shadow:0 1px 2px #000, 0 0 4px rgba(0,0,0,0.8);
-}
+.dash-tile .l{font-family:var(--ui-font);font-size:12px;letter-spacing:0.2px;color:#fff;text-shadow:0 1px 2px #000;}
+.dash-tile .d{font-family:'Share Tech Mono',monospace;font-size:11px;line-height:1.4;color:var(--amber-dim);}
+.dash-tile.locked{border-style:dashed;}
+.dash-tile.locked .l::after{content:' 🔒';font-size:10px;}
 
 /* ================= WINDOWS - casca Windows 10 flat, conteúdo original preservado ================= */
 .window{
@@ -349,27 +393,12 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 #start-btn:hover{background:var(--win10-hover);}
 #start-btn:active{background:var(--win10-hover-strong);}
 #start-orb{
-  width:16px;height:16px;
-  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;
+  font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:bold;
+  color:var(--amber);letter-spacing:-1px;
 }
-#start-orb span{background:var(--amber);display:block;}
-#start-btn:hover #start-orb span{background:#ffd680;}
+#start-btn:hover #start-orb{color:#ffd680;}
 
 #taskbar-sep{width:1px;background:rgba(255,180,0,0.15);margin:8px 0;}
-
-#tb-search{
-  display:flex;align-items:center;gap:8px;width:180px;margin:6px 6px;padding:0 10px;flex-shrink:0;
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,180,0,0.15);
-  color:var(--amber-dim);font-family:var(--ui-font);font-size:11.5px;
-}
-#tb-search .ico{font-size:12px;flex-shrink:0;}
-#tb-search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-#tb-taskview{
-  width:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:default;
-  color:var(--amber-dim);font-size:14px;
-}
-#tb-taskview:hover{background:var(--win10-hover);color:var(--amber);}
 
 #taskbar-apps{flex:1;display:flex;align-items:stretch;gap:2px;padding:4px 4px;overflow:hidden;}
 .tbar-app{
@@ -595,6 +624,11 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 }
 #start-menu .sm-body{display:flex;flex:1;min-height:0;}
 #start-menu .sm-list{overflow-y:auto;padding:2px 6px;flex:1;min-width:0;border-right:1px solid rgba(255,180,0,0.1);}
+.sm-cat-head{
+  font-family:var(--ui-font);font-size:9.5px;letter-spacing:1.5px;color:var(--amber-dim);
+  padding:8px 8px 3px;
+}
+.sm-cat-head:first-child{padding-top:4px;}
 .sm-item{
   display:flex;align-items:center;gap:10px;padding:6px 8px;cursor:pointer;
   font-family:var(--ui-font);font-size:12px;color:var(--amber);
@@ -623,65 +657,37 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 #sm-user{font-family:var(--ui-font);font-size:10.5px;color:var(--amber-dim);}
 
 /* ================= CASCA "SISTEMA 11" — aplicada após a atualização completa ================= */
+/* mantém a estética de terminal (sem vidro/acrílico, sem cantos arredondados) — só fica mais nítida e estável */
 body.win11 #taskbar{
-  background:var(--win11-taskbar);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  border-top-color:var(--win11-acrylic-border);
+  border-top-color:rgba(255,190,60,0.4);
 }
-body.win11 #taskbar-center{flex:0 1 auto;margin:0 auto;}
-body.win11 #taskbar-apps{flex:0 1 auto;}
-body.win11 #start-btn{width:44px;}
-body.win11 #start-orb{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.5px;width:15px;height:15px;}
-body.win11 #start-orb span{border-radius:2px;}
-body.win11 .tbar-app{border-radius:var(--win11-radius-sm);border-bottom:none;margin:4px 0;}
-body.win11 .tbar-app.active{box-shadow:inset 0 -2px 0 var(--amber);}
 body.win11 #show-desktop{display:none;}
 
-body.win11 .window{border-radius:var(--win11-radius);box-shadow:0 10px 34px rgba(0,0,0,0.6);}
-body.win11 .window.active{box-shadow:0 14px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,180,0,0.35);}
-body.win11 .window.maximized{border-radius:0;}
-body.win11 .titlebar{
-  background:var(--win11-chrome);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-radius:var(--win11-radius) var(--win11-radius) 0 0;
-}
-body.win11 .window.maximized .titlebar{border-radius:0;}
+body.win11 .window{box-shadow:0 6px 20px rgba(0,0,0,0.6);}
+body.win11 .window.active{box-shadow:0 10px 30px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,180,0,0.5), 0 0 16px rgba(255,180,0,0.08);}
+body.win11 .titlebar{border-bottom-color:rgba(255,180,0,0.35);}
 body.win11 .window.active .titlebar{background:var(--win11-chrome-active);}
-body.win11 .tb-btn{border-radius:var(--win11-radius-sm);height:24px;width:38px;margin:4px 3px;}
-body.win11 .tb-btn.close:hover{border-radius:var(--win11-radius-sm);}
 
-body.win11 .icon{border-radius:var(--win11-radius-sm);}
-body.win11 .icon .glyph{border-radius:var(--win11-radius-sm);}
-body.win11 .icon:hover, body.win11 .icon:focus-visible{border-radius:var(--win11-radius-sm);}
+body.win11 .tbar-app.active{box-shadow:inset 0 -2px 0 var(--amber);}
 
-body.win11 #start-menu{
-  left:50%;transform:translateX(-50%) translateY(-8px);bottom:48px;
-  border-radius:var(--win11-radius);background:var(--win11-chrome-active);
-  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
-  border-color:var(--win11-acrylic-border);
-}
-body.win11 #start-menu .sm-tile{border-radius:var(--win11-radius-sm);}
-body.win11 #start-menu .sm-item{border-radius:var(--win11-radius-sm);}
-body.win11 #start-menu .sm-search{border-radius:var(--win11-radius-sm);}
-body.win11 #start-menu .sm-rail{border-radius:var(--win11-radius) 0 0 var(--win11-radius);}
-
-body.win11 #ctx-menu{border-radius:var(--win11-radius-sm);overflow:hidden;}
-body.win11 #action-center{border-radius:var(--win11-radius);overflow:hidden;backdrop-filter:blur(20px);}
-body.win11 #update-popup{border-radius:var(--win11-radius-sm);overflow:hidden;}
-body.win11 #up-close{border-radius:0;}
+body.win11 #start-menu{border-color:rgba(255,180,0,0.4);}
 
 body.win11 #tray-update.done{color:var(--ok);}
 body.win11 #tray-update.done:hover{color:var(--ok);}
 body.win11 #tray-update.done #tray-update-dot{display:none;}
 
-/* pequeno selo "11" atrás do cursor do sistema, discreto, no canto do papel de parede */
+/* pequeno selo, discreto, no canto do papel de parede */
 body.win11 #desktop::before{
-  content:'SISTEMA 11';position:absolute;bottom:44px;right:10px;
+  content:'SISTEMA 11 — SINAL ESTABILIZADO';position:absolute;bottom:44px;right:10px;
   font-family:var(--ui-font);font-size:10px;letter-spacing:2px;color:rgba(255,190,60,0.28);
   pointer-events:none;z-index:6;
 }
 
 @media(max-width:640px){
   .window{width:88vw;}
-  #icons{gap:4px;top:14px;left:10px;}
+  #dashboard{padding:16px 12px 30px;}
+  .dash-title{font-size:19px;}
+  .dash-grid{grid-template-columns:repeat(auto-fill, minmax(140px,1fr));}
   #start-menu{width:78vw;}
   #status span:not(#clock){display:none;}
 }
@@ -695,15 +701,20 @@ body.win11 #desktop::before{
   .titlebar .tb-title{font-size:11px;}
   .tb-btn{width:30px;height:26px;font-size:10px;}
 
-  #icons{top:12px;left:10px;gap:3px;height:calc(100vh - 78px);max-height:calc(100vh - 78px);}
-  .icon{width:66px;padding:4px 3px;}
-  .icon .glyph{width:34px;height:34px;font-size:15px;margin-bottom:4px;}
-  .icon span{font-size:10px;}
+  #dashboard{padding:12px 10px 24px;}
+  .dash-title{font-size:16px;}
+  .dash-sub{font-size:10px;}
+  .dash-cat-title{font-size:15px;}
+  .dash-grid{grid-template-columns:repeat(auto-fill, minmax(120px,1fr));gap:6px;}
+  .dash-tile{padding:7px 8px;}
+  .dash-tile .g{width:26px;height:26px;font-size:12px;}
+  .dash-tile .l{font-size:10.5px;}
+  .dash-tile .d{display:none;}
+  .dash-qtile .l{font-size:10px;}
 
   #taskbar{height:34px;}
   #start-btn{width:40px;}
   #start-orb{width:13px;height:13px;}
-  #tb-search,#tb-taskview{display:none;}
   #taskbar-apps{padding:3px 3px;gap:2px;}
   .tbar-app{min-width:30px;max-width:110px;padding:0 6px;font-size:10.5px;}
   #status{gap:8px;font-size:9.5px;padding:0 8px;}
@@ -738,7 +749,14 @@ body.win11 #desktop::before{
   <div id="scanlines"></div>
   <div id="flicker"></div>
 
-  <div id="icons"></div>
+  <div id="dashboard">
+    <div class="dash-topline">
+      <span class="dash-title">PAINEL DE OPERAÇÕES — TERMINAL DE CAMPO</span>
+      <span class="dash-sub">selecione um registro, programa ou arquivo para abrir</span>
+    </div>
+    <div class="dash-quick"><span class="dash-quick-label">ACESSO RÁPIDO</span><div id="dash-quick-tiles" style="display:contents;"></div></div>
+    <div id="dash-cats"></div>
+  </div>
 
   <!-- ===================== TERMINAL ===================== -->
   <div class="window win-terminal" id="win-terminal" style="top:60px;left:140px;">
@@ -758,6 +776,19 @@ body.win11 #desktop::before{
       <p>Missão declarada, repetida em todo cartaz de recrutamento:</p>
       <p style="color:var(--amber);letter-spacing:1px;">"ENCONTRAR. DOCUMENTAR. TRAZER PARA CASA."</p>
       <p>Missão real, segundo o que se comenta nos corredores de Nível 0: ainda desconhecida até para boa parte de seus próprios membros.</p>
+      <hr class="div">
+      <h3>ANO ZERO — reconstituição a partir de fragmentos</h3>
+      <p style="font-size:12px;color:var(--amber-dim);">[registro reconstituído por comparação cruzada de depoimentos de sobreviventes. Nenhuma versão única existe. O que segue é a versão mais repetida.]</p>
+      <p>Não houve um único evento de "Ano Zero" — houve dezenas, em cidades diferentes, no espaço de poucas semanas. O padrão era sempre o mesmo: uma pessoa atravessava uma porta, um elevador, um corredor de manutenção familiar, e do outro lado não encontrava o que esperava. Encontrava salas amarelas, carpete úmido, zumbido de fluorescente. As primeiras vítimas não tinham nome para o lugar — o termo "Backrooms" só apareceu depois, tirado de um boato antigo de fórum que ninguém mais conseguiu rastrear até a origem.</p>
+      <p>Os primeiros "sem-clipe" — nome que os próprios sobreviventes deram a si mesmos antes de qualquer organização existir — se encontraram por acaso, nos poucos pontos onde os Níveis se cruzavam com rotas de retorno instáveis. Ficaram sabendo, uns pelos outros, que não estavam sozinhos, e que voltar para casa não era garantido nem para quem sabia exatamente por onde tinha entrado.</p>
+      <p>O S.I.G.O. nasceu de sete pessoas. Não sete heróis — sete sobreviventes cansados de enterrar companheiros de expedição improvisada sem sequer um mapa. Nenhum registro oficial preserva os sete nomes completos; três aparecem apenas por iniciais nos arquivos fundacionais, e um consta apenas como "o Motorista", sem explicação de por que esse apelido pegou.</p>
+      <p>A sigla veio depois da organização, não antes — um funcionário de base, meses após a fundação, comentou que precisavam de um nome que coubesse em um crachá. S.I.G.O. — <i>Sistema Interno de Gerenciamento e Observação</i> — foi escolhido por soar burocrático o bastante para tranquilizar quem chegava desesperado. Ninguém, hoje, lembra quem realmente propôs o nome.</p>
+      <p>A primeira base não foi construída — foi <i>encontrada</i>. Um antigo galpão de superfície, abandonado, que por coincidência tinha uma porta de manutenção que dava direto para o Nível 0 sempre que aberta em determinado ângulo, em determinado horário do dia. Essa porta ainda existe. Ainda é usada. Ninguém a fechou, por medo de que fechá-la de vez também feche a única rota de saída confiável que a organização já teve.</p>
+      <hr class="div">
+      <h3>Por que eles continuam aparecendo lá dentro</h3>
+      <p>A explicação oficial, ensinada a todo recruta Classe E: os Níveis não são fixos. Eles se conectam à superfície através de "pontos de não-clipe" — erros de arquitetura, ângulos impossíveis, esquinas contadas errado — que aparecem e desaparecem sem padrão previsível. Isso é verdade, mas incompleto.</p>
+      <p>O que não consta em nenhum manual de recrutamento, mas é conhecimento comum entre Capitães de Esquadrão: o número de pontos de não-clipe ativos na superfície aumentou de forma constante desde a fundação do S.I.G.O., e aumenta mais rápido nas regiões onde a organização instala novas bases. Ninguém assume publicamente uma relação de causa, mas o padrão é discutido nos corredores havia anos antes de o Protocolo 8112 formalizar a suspeita.</p>
+      <p>Existe também uma segunda explicação, restrita a arquivos de Classe A: alguns dos primeiros "sem-clipe" nunca voltaram de verdade. O que retornou à superfície, segundo esse relato nunca confirmado, trouxe consigo algo que facilita a passagem de outras pessoas para dentro — como se cada resgate reabrisse a porta um pouco mais larga para o próximo grupo.</p>
       <hr class="div">
       <p style="font-size:12px;color:var(--amber-dim);">[fim do registro público — demais arquivos requerem autorização de acesso pelo Menu Iniciar ou pelos ícones da área de trabalho]</p>
     </div>
@@ -886,6 +917,12 @@ body.win11 #desktop::before{
       Assume a aparência de um morador comum do Nível 11. Convida exploradores para "entrar e esperar a chuva passar". Relatos de quem aceitou o convite: zero. Reconhecível pelo intervalo longo demais entre piscadas.</div>
       <div class="item"><span class="name">Face Sem Nome</span> <span class="tag bad">CLASSE PRETA</span><br>
       Descrita de forma diferente em cada um dos onze depoimentos catalogados. O único ponto em comum: todos os exploradores que a viram pararam de contar a data corretamente depois do encontro.</div>
+      <div class="item"><span class="name">Sussurro-de-Duto</span> <span class="tag warn">CLASSE AMARELA</span><br>
+      Voz sobreposta que se propaga pelos dutos de ventilação do Nível 2, sempre repetindo nomes próprios em loop lento. Nenhum nome já catalogado correspondeu a um explorador desaparecido conhecido — hipótese não confirmada é que os nomes pertencem a desaparecimentos ainda não registrados.</div>
+      <div class="item"><span class="name">Nadador Profundo</span> <span class="tag bad">CLASSE VERMELHA</span><br>
+      Detectado apenas por sonar no Nível 8, nunca visualmente. Movimento lento, deliberado, sempre em direção a qualquer fonte de luz submersa. Nenhuma equipe permaneceu na água tempo suficiente para confirmar forma ou tamanho.</div>
+      <div class="item"><span class="name">Recepcionista</span> <span class="tag bad">CLASSE PRETA</span><br>
+      Ocupa o balcão vazio do Nível 5 em intervalos imprevisíveis. Nunca fala primeiro. Responde a qualquer pergunta feita em voz alta com uma pergunta idêntica, na mesma entonação — inclusive perguntas que o explorador não chegou a verbalizar, apenas pensou.</div>
       <hr class="div">
       <p style="font-size:12px;">Toda entidade Classe Preta reportada por um Explorador de Campo sobrevivente é, por política interna, reclassificada como "lenda de corredor" nos registros públicos.</p>
     </div>
@@ -903,14 +940,20 @@ body.win11 #desktop::before{
     </div>
     <div class="content">
       <h3>Catálogo de Níveis Conhecidos</h3>
-      <p><b>Nível 0 — "Sala de Espera"</b><br>Entrada mais comum. Zumbido constante de luzes fluorescentes. Perigo: <span class="tag ok">baixo</span></p>
-      <p><b>Nível 1 — Depósito Abandonado</b><br>Corredores de concreto e monitores de segurança que não gravam nada. Perigo: <span class="tag warn">médio</span></p>
-      <p><b>Nível 2 — Dutos de Manutenção</b><br>Rede de túneis estreitos entre paredes do Nível 1. Ruído metálico constante, origem nunca localizada. Único ponto de extração conhecido para equipes presas no Nível 1. Perigo: <span class="tag warn">médio</span></p>
-      <p><b>Nível 5 — "O Hotel"</b><br>Corredores de carpete vermelho e portas de quarto que não abrem — exceto uma a cada andar, escolhida ao acaso. Recepção permanentemente vazia, sino de balcão ainda funcional. Perigo: <span class="tag warn">médio-alto</span></p>
-      <p><b>Nível 8 — "Piscinas Sem Fundo"</b><br>Salão inundado com água morna e sem corrente. Profundidade nunca medida com sucesso — sondas simplesmente param de transmitir. Perigo: <span class="tag bad">alto</span></p>
-      <p><b>Nível 11 — "Cidade Noturna"</b><br>Falsa civilização, sempre à noite. Cuidado ao interagir com os "residentes". Perigo: <span class="tag warn">médio-alto</span></p>
-      <p><b>Nível !</b><br>Tempo não se comporta como deveria. Relatos de expedição raramente coincidem entre si. Perigo: <span class="tag bad">extremo / desconhecido</span></p>
-      <p><b>Nível -1</b><br><span class="stamp">DADOS REMOVIDOS</span> por ordem direta do Conselho Diretor.</p>
+      <p><b>Nível 0 — "Sala de Espera"</b><br>Entrada mais comum. Milhares de metros quadrados de carpete amarelo úmido e papel de parede monocromático, repetidos sem variação aparente. O zumbido das luzes fluorescentes nunca para — equipes que passam mais de duas horas seguidas relatam dor de cabeça e uma sensação insistente de estarem sendo observadas de um ponto que não conseguem localizar. A temperatura do ar é sempre a mesma, dia e "noite", o que por si só intriga: não há evidência de nenhum sistema de climatização ativo em lugar nenhum do Nível. Perigo: <span class="tag ok">baixo</span></p>
+      <p><b>Nível 1 — Depósito Abandonado</b><br>Corredores de concreto cru, prateleiras metálicas vazias e monitores de circuito interno que exibem imagem, mas nunca gravam nada — playback sempre retorna tela cinza. Ocasionalmente, um dos monitores mostra, por poucos segundos, um corredor que não corresponde a nenhuma planta conhecida do Nível. Equipes são instruídas a não seguir esse corredor mesmo que pareçam reconhecê-lo. Perigo: <span class="tag warn">médio</span></p>
+      <p><b>Nível 2 — Dutos de Manutenção</b><br>Rede de túneis estreitos entre paredes do Nível 1, baixos demais para caminhar ereto. O ruído metálico constante — batidas rítmicas, quase como passos — nunca teve sua origem localizada, apesar de dezenas de tentativas com equipamento de eco-localização. Único ponto de extração conhecido para equipes presas no Nível 1, o que obriga expedições de resgate a atravessar o próprio ruído sem saber o que o produz. Perigo: <span class="tag warn">médio</span></p>
+      <p><b>Nível 5 — "O Hotel"</b><br>Corredores intermináveis de carpete vermelho e portas de quarto numeradas fora de ordem, a maioria trancada permanentemente — exceto uma por andar, escolhida ao que parece ser acaso, e que muda de posição entre visitas. A recepção está sempre vazia, mas o sino de balcão continua funcional; tocá-lo, segundo três relatos separados, faz um som responder de algum lugar muito distante dentro do próprio Nível, nunca do balcão. Nenhuma equipe encontrou as cozinhas ou quartos de serviço do hotel, apesar de o edifício claramente ter sido projetado para tê-los. Perigo: <span class="tag warn">médio-alto</span></p>
+      <p><b>Nível 8 — "Piscinas Sem Fundo"</b><br>Salão industrial inundado com água morna, parada, sem qualquer corrente detectável. A profundidade nunca foi medida com sucesso — cada sonda enviada relata a temperatura da água <i>subindo</i> conforme desce, o oposto do esperado, até parar de transmitir sem explicação, geralmente entre 35 e 60 metros. Nenhum corpo de sonda foi recuperado. Mergulhadores relatam uma luz fraca vinda de baixo que nenhum instrumento registra. Perigo: <span class="tag bad">alto</span></p>
+      <p><b>Nível 11 — "Cidade Noturna"</b><br>Réplica quase perfeita de uma cidade real, presa permanentemente em horário noturno — o céu nunca clareia, e nenhum relógio de rua concorda com outro. Os "residentes" parecem, à primeira vista, pessoas comuns fazendo tarefas cotidianas: caminhando, conversando em varandas, abrindo lojas que nunca vendem nada a ninguém. O protocolo padrão é nunca aceitar convites, nunca entrar em nenhum estabelecimento e nunca perguntar a um residente que horas são — a pergunta, por razão desconhecida, costuma encerrar a conversa e fazer o residente parar de se mover por completo. Perigo: <span class="tag warn">médio-alto</span></p>
+      <p><b>Nível !</b><br>Tempo não se comporta como deveria — relógios, cronômetros e o próprio ritmo biológico dos exploradores divergem de forma diferente a cada expedição, mesmo entre membros da mesma equipe andando lado a lado. Relatos raramente coincidem entre si mesmo quando descrevem, supostamente, a mesma sala, o que levanta a hipótese não confirmada de que o Nível se reconfigura de forma distinta para cada observador. É o único Nível catalogado onde "o Cartógrafo" foi avistado caminhando sozinho. Perigo: <span class="tag bad">extremo / desconhecido</span></p>
+      <p><b>Nível -1</b><br><span class="stamp">DADOS REMOVIDOS</span> por ordem direta do Conselho Diretor. Tudo o que resta em registros de nível abaixo de Classe A é uma nota de rodapé de um relatório de expedição cancelado: "não catalogar o que desce; catalogar apenas quem volta."</p>
+      <hr class="div">
+      <h3>Anomalias transversais — não específicas a um Nível</h3>
+      <p><b>Deriva de Layout</b> — mudança silenciosa na geometria de um Nível já mapeado, sem qualquer evento visível que a explique. Costuma ocorrer horas depois de uma expedição concluir um resgate bem-sucedido na região afetada, o que sustenta parte da hipótese do Protocolo 8112.</p>
+      <p><b>Eco de Presença</b> — sensação relatada por quase todo explorador de campo, em praticamente todo Nível: a certeza de que algo andou pelo mesmo corredor pouco antes, com passos exatamente do mesmo ritmo dos seus. Nenhum equipamento de gravação jamais captou evidência física do fenômeno.</p>
+      <p><b>Bolsões de Silêncio</b> — zonas, geralmente pequenas, onde nenhum som se propaga como deveria: rádios cortam, vozes abafam, passos somem. Exploradores que atravessam um bolsão relatam sempre a mesma sequência de eventos ao sair do outro lado, mesmo sem qualquer combinação prévia entre eles.</p>
+      <p><b>Objetos Fora de Lugar</b> — itens comuns de superfície (brinquedos, cadernos, uma única bota) encontrados em posições que sugerem uso recente, em Níveis sem qualquer registro de presença humana anterior. Catalogados quando possível em ACHADOS_E_PERDIDOS.dat.</p>
       <hr class="div">
       <p style="font-size:12px;">Níveis 2, 5 e 8 ainda não possuem rota confirmada na rede principal — aparecem apenas em relatos isolados de exploradores que retornaram por engano, sem saber como chegaram lá.</p>
     </div>
@@ -1430,10 +1473,8 @@ body.win11 #desktop::before{
 
   <div id="taskbar">
     <div id="taskbar-center">
-      <div id="start-btn"><div id="start-orb"><span></span><span></span><span></span><span></span></div></div>
+      <div id="start-btn"><div id="start-orb">&gt;_</div></div>
       <div id="taskbar-sep"></div>
-      <div id="tb-search"><span class="ico">⌕</span><span>Pesquisar</span></div>
-      <div id="tb-taskview" title="Visão de Tarefas">▭</div>
       <div id="taskbar-apps"></div>
     </div>
     <div id="status">
@@ -1474,7 +1515,7 @@ body.win11 #desktop::before{
   <!-- ===================== MENU DE CONTEXTO ===================== -->
   <div id="ctx-menu">
     <div class="ctx-item" id="ctx-refresh"><span>⟳</span>Atualizar</div>
-    <div class="ctx-item" id="ctx-view"><span>▦</span>Exibir ícones</div>
+    <div class="ctx-item" id="ctx-view"><span>▦</span>Exibir painel</div>
     <div class="ctx-sep"></div>
     <div class="ctx-item" id="ctx-config"><span>⚙</span>Configurações</div>
     <div class="ctx-item disabled"><span>➕</span>Novo item (bloqueado por política)</div>
@@ -1527,30 +1568,38 @@ function applyWin11Visuals(){
 if(systemUpgraded){ applyWin11Visuals(); }
 
 // ---------- LISTA DE PROGRAMAS (ícones, menu iniciar, barra de tarefas) ----------
+const CATEGORIES = [
+  {id:'org',    label:'REGISTROS DA ORGANIZAÇÃO', glyph:'☖'},
+  {id:'campo',  label:'OPERAÇÕES DE CAMPO',        glyph:'⌖'},
+  {id:'ameaca', label:'AMEAÇAS & NÍVEIS',          glyph:'⚠'},
+  {id:'comm',   label:'COMUNICAÇÃO',               glyph:'✉'},
+  {id:'restr',  label:'ARQUIVOS RESTRITOS',        glyph:'⚷'},
+  {id:'sys',    label:'SISTEMA',                   glyph:'⚙'},
+];
 const APPS = [
-  {id:'win-terminal',   label:'S.I.G.O_TERMINAL',  glyph:'▣'},
-  {id:'win-pessoal',    label:'PESSOAL.dat',        glyph:'☰'},
-  {id:'win-expedicoes', label:'EXPEDIÇÕES.log',     glyph:'⌖'},
-  {id:'win-radio',      label:'RÁDIO.wav',          glyph:'◉'},
-  {id:'win-ameacas',    label:'AMEAÇAS.cls',        glyph:'⚠'},
-  {id:'win-niveis',     label:'NÍVEIS.map',         glyph:'▦'},
-  {id:'win-teorias',    label:'FÓRUM_NC',           glyph:'❖'},
-  {id:'win-restrito',   label:'RESTRITO.???',       glyph:'✕'},
-  {id:'win-restrito2',  label:'ARQUIVO_NEGRO.???',  glyph:'⚷'},
-  {id:'win-conselheiro',label:'CONSELHEIRO.dat',    glyph:'☖'},
-  {id:'win-objetos',    label:'OBJETOS.inv',        glyph:'◇'},
-  {id:'win-mensagens',  label:'MENSAGENS.msg',      glyph:'✉'},
-  {id:'win-mapa',       label:'MAPA.exe',           glyph:'⌘'},
-  {id:'win-suprimentos',label:'SUPRIMENTOS.inv',    glyph:'▤'},
-  {id:'win-diario',     label:'DIÁRIO_CAMPO.log',   glyph:'✎'},
-  {id:'win-equipe',     label:'EQUIPE.dat',         glyph:'☷'},
-  {id:'win-entidades',  label:'ENTIDADES.cls',      glyph:'☠'},
-  {id:'win-mercado',    label:'MERCADO_NEGRO.exe',  glyph:'⚖'},
-  {id:'win-config',     label:'CONFIGURAÇÕES',      glyph:'⚙'},
-  {id:'win-lixeira',    label:'LIXEIRA.sys',        glyph:'🗑'},
-  {id:'win-cameras',    label:'CÂMERAS.exe',        glyph:'◎'},
-  {id:'win-contatos',   label:'CONTATOS.tel',       glyph:'☎'},
-  {id:'win-achados',    label:'ACHADOS_E_PERDIDOS.dat', glyph:'⚑'},
+  {id:'win-terminal',   label:'S.I.G.O_TERMINAL',  glyph:'▣', cat:'org',    desc:'Histórico oficial e fundação da organização'},
+  {id:'win-pessoal',    label:'PESSOAL.dat',        glyph:'☰', cat:'org',    desc:'Quadro de hierarquia e classes de operador'},
+  {id:'win-equipe',     label:'EQUIPE.dat',         glyph:'☷', cat:'org',    desc:'Ficha dos membros do esquadrão atual'},
+  {id:'win-conselheiro',label:'CONSELHEIRO.dat',    glyph:'☖', cat:'org',    desc:'Dossiê classificado — Conselho Diretor', locked:true},
+  {id:'win-expedicoes', label:'EXPEDIÇÕES.log',     glyph:'⌖', cat:'campo',  desc:'Registro de missões concluídas e em curso'},
+  {id:'win-radio',      label:'RÁDIO.wav',          glyph:'◉', cat:'campo',  desc:'Transmissões de campo interceptadas'},
+  {id:'win-mapa',       label:'MAPA.exe',           glyph:'⌘', cat:'campo',  desc:'Rotas conhecidas entre Níveis'},
+  {id:'win-suprimentos',label:'SUPRIMENTOS.inv',    glyph:'▤', cat:'campo',  desc:'Inventário ativo da base de Nível 0'},
+  {id:'win-diario',     label:'DIÁRIO_CAMPO.log',   glyph:'✎', cat:'campo',  desc:'Anotações pessoais de exploradores'},
+  {id:'win-cameras',    label:'CÂMERAS.exe',        glyph:'◎', cat:'campo',  desc:'Feed de vigilância da base'},
+  {id:'win-ameacas',    label:'AMEAÇAS.cls',        glyph:'⚠', cat:'ameaca', desc:'Classificação de risco de entidades'},
+  {id:'win-entidades',  label:'ENTIDADES.cls',      glyph:'☠', cat:'ameaca', desc:'Catálogo de campo — resumo público'},
+  {id:'win-niveis',     label:'NÍVEIS.map',         glyph:'▦', cat:'ameaca', desc:'Catálogo de Níveis conhecidos e anomalias'},
+  {id:'win-objetos',    label:'OBJETOS.inv',        glyph:'◇', cat:'ameaca', desc:'Itens anômalos catalogados'},
+  {id:'win-mensagens',  label:'MENSAGENS.msg',      glyph:'✉', cat:'comm',   desc:'Comunicações internas recentes'},
+  {id:'win-contatos',   label:'CONTATOS.tel',       glyph:'☎', cat:'comm',   desc:'Lista de contatos de base'},
+  {id:'win-teorias',    label:'FÓRUM_NC',           glyph:'❖', cat:'comm',   desc:'Discussões não oficiais entre operadores'},
+  {id:'win-mercado',    label:'MERCADO_NEGRO.exe',  glyph:'⚖', cat:'comm',   desc:'Canal não reconhecido de trocas'},
+  {id:'win-restrito',   label:'RESTRITO.???',       glyph:'✕', cat:'restr',  desc:'Protocolo 8112 — acesso Classe A', locked:true},
+  {id:'win-restrito2',  label:'ARQUIVO_NEGRO.???',  glyph:'⚷', cat:'restr',  desc:'Protocolo Silêncio — acesso Classe A', locked:true},
+  {id:'win-achados',    label:'ACHADOS_E_PERDIDOS.dat', glyph:'⚑', cat:'restr', desc:'Objetos sem origem conhecida'},
+  {id:'win-config',     label:'CONFIGURAÇÕES',      glyph:'⚙', cat:'sys',    desc:'Preferências do terminal'},
+  {id:'win-lixeira',    label:'LIXEIRA.sys',        glyph:'🗑', cat:'sys',    desc:'Itens excluídos do sistema'},
 ];
 
 // ---------- BOOT SEQUENCE ----------
@@ -1605,32 +1654,73 @@ function finishBoot(){
 }
 document.getElementById('boot').addEventListener('click', finishBoot);
 
-// ---------- MONTAGEM DE ÍCONES / MENU INICIAR ----------
-const iconsEl = document.getElementById('icons');
+// ---------- MONTAGEM DO PAINEL (dashboard) / MENU INICIAR ----------
+const dashQuick = document.getElementById('dash-quick-tiles');
+const dashCats = document.getElementById('dash-cats');
 const smList = document.getElementById('sm-list');
 const smTiles = document.getElementById('sm-tiles');
 const PINNED_IDS = ['win-terminal','win-expedicoes','win-radio','win-niveis','win-mapa','win-restrito','win-entidades','win-mercado'];
-APPS.forEach(app=>{
-  const icon = document.createElement('div');
-  icon.className='icon';
-  icon.tabIndex=0;
-  icon.innerHTML = `<div class="glyph">${app.glyph}</div><span>${app.label}</span>`;
-  icon.addEventListener('click', ()=>openWin(app.id));
-  iconsEl.appendChild(icon);
 
-  const smItem = document.createElement('div');
-  smItem.className='sm-item';
-  smItem.innerHTML = `<span class="g">${app.glyph}</span><span>${app.label}</span>`;
-  smItem.addEventListener('click', ()=>{ openWin(app.id); closeStartMenu(); });
-  smList.appendChild(smItem);
+// acesso rápido, no topo do painel
+APPS.filter(a=>PINNED_IDS.includes(a.id)).forEach(app=>{
+  const qt = document.createElement('div');
+  qt.className='dash-qtile';
+  qt.tabIndex=0;
+  qt.innerHTML = `<span class="g">${app.glyph}</span><span class="l">${app.label}</span>`;
+  qt.addEventListener('click', ()=>openWin(app.id));
+  dashQuick.appendChild(qt);
+});
 
-  if(PINNED_IDS.includes(app.id)){
+// painel principal, agrupado por categoria
+CATEGORIES.forEach(cat=>{
+  const appsInCat = APPS.filter(a=>a.cat===cat.id);
+  if(!appsInCat.length) return;
+
+  const section = document.createElement('div');
+  section.className='dash-cat';
+  section.innerHTML = `
+    <div class="dash-cat-head">
+      <span class="dash-cat-glyph">${cat.glyph}</span>
+      <span class="dash-cat-title">${cat.label}</span>
+      <span class="dash-cat-count">${appsInCat.length} item${appsInCat.length>1?'s':''}</span>
+      <span class="dash-cat-line"></span>
+    </div>`;
+  const grid = document.createElement('div');
+  grid.className='dash-grid';
+  appsInCat.forEach(app=>{
     const tile = document.createElement('div');
-    tile.className='sm-tile';
-    tile.innerHTML = `<span class="g">${app.glyph}</span><span class="l">${app.label}</span>`;
-    tile.addEventListener('click', ()=>{ openWin(app.id); closeStartMenu(); });
-    smTiles.appendChild(tile);
-  }
+    tile.className='dash-tile'+(app.locked?' locked':'');
+    tile.tabIndex=0;
+    tile.innerHTML = `<div class="dash-tile-top"><span class="g">${app.glyph}</span><span class="l">${app.label}</span></div><span class="d">${app.desc||''}</span>`;
+    tile.addEventListener('click', ()=>openWin(app.id));
+    grid.appendChild(tile);
+  });
+  section.appendChild(grid);
+  dashCats.appendChild(section);
+});
+
+// menu iniciar — segue a mesma ordem/categorias, para consistência
+CATEGORIES.forEach(cat=>{
+  const appsInCat = APPS.filter(a=>a.cat===cat.id);
+  if(!appsInCat.length) return;
+  const header = document.createElement('div');
+  header.className='sm-cat-head';
+  header.textContent = cat.label;
+  smList.appendChild(header);
+  appsInCat.forEach(app=>{
+    const smItem = document.createElement('div');
+    smItem.className='sm-item';
+    smItem.innerHTML = `<span class="g">${app.glyph}</span><span>${app.label}</span>`;
+    smItem.addEventListener('click', ()=>{ openWin(app.id); closeStartMenu(); });
+    smList.appendChild(smItem);
+  });
+});
+APPS.filter(a=>PINNED_IDS.includes(a.id)).forEach(app=>{
+  const tile = document.createElement('div');
+  tile.className='sm-tile';
+  tile.innerHTML = `<span class="g">${app.glyph}</span><span class="l">${app.label}</span>`;
+  tile.addEventListener('click', ()=>{ openWin(app.id); closeStartMenu(); });
+  smTiles.appendChild(tile);
 });
 
 // ---------- GERENCIAMENTO DE JANELAS ----------
@@ -2067,7 +2157,7 @@ document.getElementById('ctx-refresh').addEventListener('click', ()=>{
   fl.style.animation='none'; void fl.offsetWidth; fl.style.animation='flickerFx 0.5s steps(2) 2';
 });
 document.getElementById('ctx-view').addEventListener('click', ()=>{
-  document.getElementById('icons').style.display = document.getElementById('icons').style.display==='none' ? 'flex' : 'none';
+  document.getElementById('dashboard').style.display = document.getElementById('dashboard').style.display==='none' ? 'block' : 'none';
 });
 document.getElementById('ctx-config').addEventListener('click', ()=> openWin('win-config'));
 
@@ -2326,7 +2416,7 @@ document.addEventListener('pointerdown', ensureAudio, {once:true});
 document.addEventListener('keydown', ensureAudio, {once:true});
 
 // sons de interface: cliques em ícones, botões de janela e barra de tarefas
-document.querySelectorAll('.icon, .tb-btn, #start-btn, .tbar-app, .sm-item, .sm-tile').forEach(el=>{
+document.querySelectorAll('.dash-tile, .dash-qtile, .tb-btn, #start-btn, .tbar-app, .sm-item, .sm-tile').forEach(el=>{
   el.addEventListener('click', ()=> playClick());
 });
 document.getElementById('up-now').addEventListener('click', ()=> playStatic(0.6));
