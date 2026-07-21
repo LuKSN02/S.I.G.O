@@ -722,30 +722,108 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 #sm-user{font-family:var(--ui-font);font-size:10.5px;color:var(--amber-dim);}
 
 /* ================= CASCA "SISTEMA 11" — aplicada após a atualização completa ================= */
-/* mantém a estética de terminal (sem vidro/acrílico, sem cantos arredondados) — só fica mais nítida e estável */
+/* a atualização finalmente entrega o que a promessa "Fluent/acrílico" sempre prometeu:
+   vidro de verdade, cantos suaves, resposta instantânea. é tecnologia genuinamente mais
+   avançada — e o fato de funcionar tão bem, sem nenhuma falha, é o que soa errado. */
+
+body.win11{ --hud-line:rgba(255,190,60,0.55); }
+
+body.win11 #desktop::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:1;opacity:0.3;
+  background-image:
+    linear-gradient(rgba(255,190,60,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,190,60,0.05) 1px, transparent 1px);
+  background-size:38px 38px;
+  animation:hudGridDrift 26s linear infinite;
+}
+@keyframes hudGridDrift{ from{background-position:0 0,0 0;} to{background-position:38px 38px,-38px 38px;} }
+
 body.win11 #taskbar{
   border-top-color:rgba(255,190,60,0.4);
+  background:var(--win11-taskbar);
+  backdrop-filter:blur(18px) saturate(1.4);
+  -webkit-backdrop-filter:blur(18px) saturate(1.4);
 }
 body.win11 #show-desktop{display:none;}
 
-body.win11 .window{box-shadow:0 6px 20px rgba(0,0,0,0.6);}
-body.win11 .window.active{box-shadow:0 10px 30px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,180,0,0.5), 0 0 16px rgba(255,180,0,0.08);}
-body.win11 .titlebar{border-bottom-color:rgba(255,180,0,0.35);}
+body.win11 .window{
+  border-radius:var(--win11-radius);
+  border-color:var(--win11-acrylic-border);
+  box-shadow:0 8px 26px rgba(0,0,0,0.6);
+  transition:box-shadow .25s ease;
+}
+body.win11 .window.maximized{border-radius:0;}
+body.win11 .window.active{
+  box-shadow:0 14px 36px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,180,0,0.55), 0 0 22px rgba(255,180,0,0.14);
+}
+body.win11 .titlebar{
+  background:var(--win11-chrome);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  border-bottom-color:rgba(255,180,0,0.3);
+}
 body.win11 .window.active .titlebar{background:var(--win11-chrome-active);}
+body.win11 .titlebar::after{
+  content:'';position:absolute;left:0;right:0;top:0;height:2px;pointer-events:none;
+  background:linear-gradient(90deg, transparent, var(--hud-line), transparent);
+  transform:translateX(-100%);opacity:0;
+}
+body.win11 .window.active .titlebar::after{animation:hudScan 2.6s ease-in-out infinite;opacity:1;}
+@keyframes hudScan{ 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
 
-body.win11 .tbar-app.active{box-shadow:inset 0 -2px 0 var(--amber);}
+body.win11 .tb-btn{border-radius:var(--win11-radius-sm);margin:3px 2px;height:26px;position:relative;overflow:hidden;}
+body.win11 .tb-btn:hover{background:var(--win11-hover-strong);}
 
-body.win11 #start-menu{border-color:rgba(255,180,0,0.4);}
+body.win11 .tbar-app{border-radius:var(--win11-radius-sm);}
+body.win11 .tbar-app.active{box-shadow:inset 0 -2px 0 var(--amber);background:var(--win11-hover);}
+
+body.win11 #start-btn{border-radius:var(--win11-radius-sm);margin:5px 3px;overflow:hidden;}
+body.win11 #start-btn:hover{background:var(--win11-hover);}
+
+body.win11 #start-menu{
+  border-color:var(--win11-acrylic-border);
+  border-radius:var(--win11-radius);
+  background:var(--win11-chrome);
+  backdrop-filter:blur(22px) saturate(1.4);
+  -webkit-backdrop-filter:blur(22px) saturate(1.4);
+  box-shadow:0 16px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,180,0,0.18);
+}
+body.win11 .sm-tile, body.win11 .sm-item{border-radius:var(--win11-radius-sm);}
+
+body.win11 #action-center{
+  border-radius:var(--win11-radius);
+  background:var(--win11-chrome);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+}
+
+body.win11 .dash-tile{
+  border-radius:var(--win11-radius-sm);
+  transition:transform .15s ease, box-shadow .15s ease;
+  position:relative;overflow:hidden;
+}
+body.win11 .dash-tile:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(0,0,0,0.5), 0 0 14px rgba(255,180,0,0.18);
+}
+
+/* efeito "reveal" (realce que segue o cursor) — Fluent Design de verdade */
+body.win11 .dash-tile::before, body.win11 .tb-btn::before, body.win11 #start-btn::before{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(120px circle at var(--rx,50%) var(--ry,50%), rgba(255,205,90,0.18), transparent 65%);
+  opacity:0;transition:opacity .2s ease;
+}
+body.win11 .dash-tile:hover::before, body.win11 .tb-btn:hover::before, body.win11 #start-btn:hover::before{opacity:1;}
 
 body.win11 #tray-update.done{color:var(--ok);}
 body.win11 #tray-update.done:hover{color:var(--ok);}
 body.win11 #tray-update.done #tray-update-dot{display:none;}
 
-/* pequeno selo, discreto, no canto do papel de parede */
+/* selo de diagnóstico — agora com leitura técnica real, não só um rótulo */
 body.win11 #desktop::before{
-  content:'SISTEMA 11 — SINAL ESTABILIZADO';position:absolute;bottom:44px;right:10px;
-  font-family:var(--ui-font);font-size:10px;letter-spacing:2px;color:rgba(255,190,60,0.28);
-  pointer-events:none;z-index:6;
+  content:'SISTEMA 11 — ACRÍLICO ATIVO · LATÊNCIA 00ms · INTEGRIDADE 100%';
+  position:absolute;bottom:44px;right:10px;z-index:6;pointer-events:none;
+  font-family:var(--ui-font);font-size:10px;letter-spacing:1.5px;color:rgba(255,190,60,0.3);
 }
 
 @media(max-width:640px){
@@ -797,6 +875,180 @@ body.win11 #desktop::before{
   #orb-assemble span{width:13px;height:13px;}
   #boot-log{font-size:12px;width:min(560px,90vw);}
   #boot .skip{bottom:14px;right:16px;font-size:10.5px;}
+}
+
+/* ======================================================================
+   CASCA "GNOME/POP!_OS" — reformulação completa do shell
+   base: continua o mesmo terminal de campo S.I.G.O., agora rodando sobre
+   um ambiente estilo GNOME/Cosmic. o âmbar e o horror ficam; a "casca"
+   muda. nada abaixo remove a lógica original — só reformula por cima.
+   ====================================================================== */
+:root{
+  --gnome-bar-h:32px;
+  --gnome-dock-w:64px;
+  --gnome-bar-bg:rgba(14,11,5,0.88);
+  --gnome-dock-bg:rgba(16,13,6,0.82);
+  --gnome-radius:14px;
+  --gnome-radius-sm:9px;
+  --gnome-border:rgba(255,190,60,0.20);
+  --gnome-accent:rgba(255,190,60,0.85);
+}
+
+/* -------- fundo: grafite de parede, eco do wordmark de um desktop real -------- */
+#desktop::before{
+  content:'S.I.G.O.';
+  position:absolute;left:50%;top:40%;z-index:0;pointer-events:none;
+  transform:translate(-50%,-50%) rotate(-3deg);
+  font-family:'VT323',monospace;font-size:min(20vw,300px);letter-spacing:6px;
+  color:transparent;-webkit-text-stroke:2.5px rgba(255,180,0,0.10);
+  white-space:nowrap;
+}
+#dashboard{position:relative;z-index:1;}
+
+/* -------- barra superior (substitui a antiga taskbar inferior) -------- */
+#taskbar{
+  top:0;bottom:auto;left:0;right:0;height:var(--gnome-bar-h);
+  background:var(--gnome-bar-bg);
+  border-top:none;border-bottom:1px solid var(--gnome-border);
+  backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);
+  display:flex;align-items:stretch;justify-content:space-between;
+  z-index:600;
+}
+#taskbar-center{flex:0 0 auto;display:flex;align-items:stretch;}
+#start-btn{
+  width:auto;padding:0 14px;display:flex;align-items:center;justify-content:center;
+  border-radius:0;
+}
+#start-orb{font-family:var(--ui-font);font-size:11.5px;letter-spacing:1px;font-weight:400;color:var(--amber);}
+#start-btn:hover #start-orb{color:#ffd680;}
+
+#gnome-clockwrap{
+  position:absolute;left:50%;top:0;bottom:0;transform:translateX(-50%);
+  display:flex;align-items:center;pointer-events:none;
+}
+#gnome-clockwrap #clock{
+  font-family:var(--ui-font);font-size:11.5px;letter-spacing:0.5px;color:var(--amber);
+  background:none;text-align:center;
+}
+
+#status{
+  position:static;display:flex;align-items:center;gap:14px;
+  border-left:none;padding:0 14px 0 10px;
+}
+#show-desktop{display:none;} /* reaproveitado dentro do dock, ver abaixo */
+#taskbar-sep{display:none;}
+
+/* -------- dock lateral esquerdo (janelas abertas) -------- */
+#gnome-dock{
+  position:fixed;left:8px;top:calc(var(--gnome-bar-h) + 14px);bottom:14px;
+  width:var(--gnome-dock-w);z-index:590;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:10px 0;background:var(--gnome-dock-bg);
+  border:1px solid var(--gnome-border);border-radius:var(--gnome-radius);
+  backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  overflow-y:auto;overflow-x:hidden;
+}
+#gnome-dock::-webkit-scrollbar{width:0;}
+#gnome-dock #taskbar-apps{
+  display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;
+  padding:0;overflow:visible;
+}
+#gnome-dock .tbar-app{
+  width:46px;height:46px;min-width:0;max-width:none;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--gnome-radius-sm);border-bottom:none;
+  background:rgba(255,255,255,0.03);position:relative;
+}
+#gnome-dock .tbar-app .g{font-size:19px;}
+#gnome-dock .tbar-app .l{display:none;}
+#gnome-dock .tbar-app:hover{background:rgba(255,190,60,0.16);}
+#gnome-dock .tbar-app.active{background:rgba(255,190,60,0.14);}
+#gnome-dock .tbar-app.active::after{
+  content:'';position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);
+  width:5px;height:5px;border-radius:50%;background:var(--gnome-accent);
+  box-shadow:0 0 6px rgba(255,190,60,0.7);
+}
+#gnome-dock .tbar-app.minimized{opacity:0.5;}
+#gnome-dock #taskbar-sep{
+  display:block;width:70%;height:1px;background:var(--gnome-border);margin:2px 0;
+}
+#gnome-dock #show-desktop{
+  display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:var(--gnome-radius-sm);
+  color:var(--amber-dim);font-size:16px;border-left:none;flex-shrink:0;
+}
+#gnome-dock #show-desktop:hover{background:rgba(255,190,60,0.14);color:var(--amber);}
+
+/* -------- ícones da área de trabalho (grade estilo GNOME/Nautilus) -------- */
+.dash-grid{grid-template-columns:repeat(auto-fill, minmax(96px,1fr));gap:20px 6px;}
+.dash-tile{
+  background:transparent;border:1px solid transparent;border-radius:var(--gnome-radius-sm);
+  align-items:center;text-align:center;padding:12px 6px;gap:6px;
+}
+.dash-tile:hover, .dash-tile:focus-visible{background:rgba(255,190,60,0.12);border-color:var(--gnome-border);}
+.dash-tile:active{background:rgba(255,190,60,0.20);}
+.dash-tile-top{flex-direction:column;gap:8px;width:100%;}
+.dash-tile .g{
+  width:52px;height:52px;margin:0 auto;border-radius:16px;font-size:22px;
+  background:linear-gradient(160deg, rgba(255,190,60,0.20), rgba(28,24,16,0.92));
+  border:1px solid var(--gnome-border);box-shadow:0 4px 14px rgba(0,0,0,0.45);
+}
+.dash-tile .l{font-size:11.5px;text-shadow:0 1px 3px #000, 0 1px 3px #000;}
+.dash-tile .d{display:none;}
+.dash-quick{display:none;} /* favoritos agora vivem no dock */
+#dashboard{padding-left:calc(var(--gnome-dock-w) + 30px);padding-top:calc(var(--gnome-bar-h) + 20px);}
+
+/* -------- janelas: cabeçalho estilo Adwaita/libadwaita -------- */
+.window{border-radius:var(--gnome-radius);border-color:var(--gnome-border);}
+.window.maximized{border-radius:0;}
+.titlebar{
+  background:rgba(20,16,8,0.92);border-bottom-color:var(--gnome-border);
+  padding-left:12px;
+}
+.window.active .titlebar{background:rgba(28,22,11,0.96);}
+.tb-controls{gap:6px;padding-right:8px;align-items:center;}
+.tb-btn{
+  width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.06);
+  font-size:10px;align-self:center;
+}
+.tb-btn:hover{background:rgba(255,190,60,0.28);}
+.tb-btn.close{order:3;}
+.tb-btn.max{order:2;}
+.tb-btn.min{order:1;}
+.tb-btn.close:hover{background:var(--danger);}
+
+/* -------- menu iniciar reformulado como "Visão geral de Atividades" -------- */
+#start-menu{
+  left:0;right:0;top:var(--gnome-bar-h);bottom:0;width:auto;max-height:none;
+  background:rgba(8,6,3,0.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:none;box-shadow:none;align-items:flex-start;justify-content:center;padding-top:6vh;
+}
+#start-menu.open{display:flex;}
+#start-menu .sm-main{
+  width:min(640px,88vw);max-height:80vh;background:var(--gnome-dock-bg);
+  border:1px solid var(--gnome-border);border-radius:var(--gnome-radius);
+  box-shadow:0 20px 50px rgba(0,0,0,0.6);overflow:hidden;
+}
+#start-menu .sm-rail{display:none;}
+#start-menu .sm-search{margin:10px 14px;border-radius:var(--gnome-radius-sm);}
+#start-menu .sm-body{flex-direction:column;}
+#start-menu .sm-list{border-right:none;max-height:30vh;}
+#start-menu .sm-tiles{width:auto;grid-template-columns:repeat(4,1fr);padding:10px 14px;}
+.sm-tile{border-radius:var(--gnome-radius-sm);background:rgba(255,255,255,0.03);}
+.sm-tile:hover{background:rgba(255,190,60,0.16);border-color:var(--gnome-accent);}
+
+@media(max-width:640px){
+  #gnome-dock{left:4px;width:52px;top:calc(var(--gnome-bar-h) + 8px);bottom:8px;}
+  #gnome-dock .tbar-app{width:38px;height:38px;}
+  #dashboard{padding-left:calc(52px + 18px);}
+  #status span:not(#tray-update):not(#tray-action){display:none;}
+  #start-menu .sm-tiles{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:800px), (max-height:600px){
+  #taskbar{height:28px;}
+  #gnome-dock{top:calc(28px + 8px);}
+  #dashboard{padding-top:calc(28px + 14px);}
 }
 </style>
 </head>
@@ -1546,18 +1798,21 @@ body.win11 #desktop::before{
 
   <div id="taskbar">
     <div id="taskbar-center">
-      <div id="start-btn"><div id="start-orb">&gt;_</div></div>
-      <div id="taskbar-sep"></div>
-      <div id="taskbar-apps"></div>
+      <div id="start-btn"><div id="start-orb">⬒ Atividades</div></div>
     </div>
+    <div id="gnome-clockwrap"><span id="clock">00:00:00</span></div>
     <div id="status">
       <span class="jitter">SINAL: <span class="sig" id="sig-val">INSTÁVEL</span></span>
       <span>ESTABILIDADE: <span id="stab-val">62%</span></span>
       <span id="tray-update" title="Atualizações disponíveis">⟳<span id="tray-update-dot"></span></span>
       <span id="tray-action" title="Central de Ações">☰<span id="tray-action-dot"></span></span>
-      <span id="clock">00:00:00</span>
     </div>
-    <div id="show-desktop" title="Mostrar área de trabalho"></div>
+  </div>
+
+  <div id="gnome-dock">
+    <div id="taskbar-apps"></div>
+    <div id="taskbar-sep"></div>
+    <div id="show-desktop" title="Mostrar área de trabalho">⌂</div>
   </div>
 
   <!-- ===================== POPUP DE ATUALIZAÇÃO — SISTEMA 11 ===================== -->
@@ -1670,6 +1925,16 @@ function applyWin11Visuals(){
   if(updDesc) updDesc.textContent = 'Este terminal já está na versão mais recente. Nenhuma atualização adicional foi listada — ainda.';
 }
 if(systemUpgraded){ applyWin11Visuals(); }
+
+// efeito "reveal" (realce que segue o cursor) — só ativo após a atualização para Sistema 11
+document.addEventListener('mousemove', (e)=>{
+  if(!document.body.classList.contains('win11')) return;
+  const el = e.target.closest('.dash-tile, .tb-btn, #start-btn');
+  if(!el) return;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty('--rx', (e.clientX-r.left)+'px');
+  el.style.setProperty('--ry', (e.clientY-r.top)+'px');
+});
 
 // ---------- LISTA DE PROGRAMAS (ícones, menu iniciar, barra de tarefas) ----------
 const CATEGORIES = [
