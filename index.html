@@ -328,6 +328,47 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 .cam-blip{position:absolute;z-index:4;width:8px;height:8px;border-radius:50%;background:rgba(255,80,80,0.85);box-shadow:0 0 8px rgba(255,60,60,0.7);opacity:0;transition:opacity .3s ease;}
 .cam-blip.show{opacity:1;}
 .cam-foot{font-size:11px;color:var(--amber-dim);display:flex;justify-content:space-between;}
+#win-cameras .cam-tile[data-cam="03"]{cursor:pointer;}
+#win-cameras .cam-tile[data-cam="03"]:hover .cam-noSignal span{color:#ff4d4d;}
+
+/* ================= JUMPSCARE — CAM-03 ================= */
+#cam-jumpscare{
+  position:fixed;inset:0;z-index:100000;background:#000;display:none;
+  align-items:center;justify-content:center;overflow:hidden;
+}
+#cam-jumpscare.active{display:flex;animation:jsShake 0.65s linear;}
+#cam-jumpscare .js-layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+#cam-jumpscare svg{width:78%;height:78%;filter:drop-shadow(0 0 30px rgba(193,18,31,0.55));}
+#cam-jumpscare .js-red{mix-blend-mode:screen;opacity:0.55;animation:jsSplitR 0.12s infinite;}
+#cam-jumpscare .js-cyan{mix-blend-mode:screen;opacity:0.4;animation:jsSplitC 0.12s infinite;}
+#cam-jumpscare .js-noise{
+  position:absolute;inset:0;z-index:3;pointer-events:none;mix-blend-mode:overlay;opacity:0.5;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 3px);
+  animation:jsNoise 0.08s steps(2) infinite;
+}
+#cam-jumpscare .js-flash{position:absolute;inset:0;z-index:4;pointer-events:none;background:#c1121f;opacity:0;animation:jsFlash 0.65s steps(1) forwards;}
+#cam-jumpscare .js-text{
+  position:absolute;bottom:14%;left:0;right:0;z-index:5;text-align:center;
+  font-family:'VT323',monospace;font-size:26px;letter-spacing:3px;color:#ff2a2a;
+  text-shadow:0 0 10px rgba(255,0,0,0.8);opacity:0;animation:jsTextIn 0.65s steps(1) forwards;
+}
+@keyframes jsShake{
+  0%,100%{transform:translate(0,0);}
+  10%{transform:translate(-10px,5px) rotate(-1deg);}
+  20%{transform:translate(9px,-6px) rotate(1deg);}
+  30%{transform:translate(-8px,7px) rotate(-1deg);}
+  40%{transform:translate(9px,-4px) rotate(1deg);}
+  50%{transform:translate(-6px,6px);}
+  60%{transform:translate(7px,-7px);}
+  70%{transform:translate(-8px,4px);}
+  80%{transform:translate(6px,-5px);}
+  90%{transform:translate(-5px,5px);}
+}
+@keyframes jsSplitR{0%{transform:translate(0,0);}50%{transform:translate(4px,-2px);}100%{transform:translate(-3px,2px);}}
+@keyframes jsSplitC{0%{transform:translate(0,0);}50%{transform:translate(-4px,2px);}100%{transform:translate(3px,-3px);}}
+@keyframes jsNoise{0%{opacity:0.35;}50%{opacity:0.6;}100%{opacity:0.4;}}
+@keyframes jsFlash{0%{opacity:0.9;}8%{opacity:0.1;}14%{opacity:0.7;}22%{opacity:0;}100%{opacity:0;}}
+@keyframes jsTextIn{0%{opacity:0;}20%{opacity:0;}30%{opacity:1;}85%{opacity:1;}100%{opacity:0;}}
 
 /* Restricted / lock window */
 #win-restrito .content, #win-restrito2 .content{background:#050403;}
@@ -1575,6 +1616,37 @@ body.win11 #desktop::before{
   <div id="idle-screen">
     <div class="idle-text">VOCÊ AINDA ESTÁ AÍ?<br><span style="font-size:11px;">clique em qualquer lugar para continuar</span></div>
   </div>
+
+  <!-- ===================== JUMPSCARE — CAM-03 ===================== -->
+  <div id="cam-jumpscare" aria-hidden="true">
+    <div class="js-layer js-cyan">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <path d="M150,290 L138,220 L120,195 L128,150 L108,110 L120,70 L145,35 L150,20 L155,35 L180,70 L192,110 L172,150 L180,195 L162,220 Z" fill="#0af0ff"/>
+      </svg>
+    </div>
+    <div class="js-layer js-red">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <path d="M150,290 L138,220 L120,195 L128,150 L108,110 L120,70 L145,35 L150,20 L155,35 L180,70 L192,110 L172,150 L180,195 L162,220 Z" fill="#ff1a1a"/>
+      </svg>
+    </div>
+    <div class="js-layer">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="jsGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path d="M150,290 L138,220 L120,195 L128,150 L108,110 L120,70 L145,35 L150,20 L155,35 L180,70 L192,110 L172,150 L180,195 L162,220 Z" fill="#050403" stroke="#1a1512" stroke-width="1.5"/>
+        <circle cx="134" cy="105" r="5.5" fill="#ff2a2a" filter="url(#jsGlow)"/>
+        <circle cx="166" cy="105" r="5.5" fill="#ff2a2a" filter="url(#jsGlow)"/>
+        <path d="M126,142 Q150,158 174,142" stroke="#ff2a2a" stroke-width="2" fill="none" filter="url(#jsGlow)"/>
+      </svg>
+    </div>
+    <div class="js-noise"></div>
+    <div class="js-flash"></div>
+    <div class="js-text">SINAL PERDIDO — ELE ESTAVA NA SALA COM VOCÊ</div>
+  </div>
 </div>
 
 <script>
@@ -2369,6 +2441,25 @@ setInterval(()=>{
       setTimeout(()=>blip02.classList.remove('show'), 1400 + Math.random()*2200);
     }
   }, 9000);
+
+  // CAM-03: sinal "perdido" reage ao clique — jumpscare e encerramento do app de câmeras
+  const cam03Tile = document.querySelector('#win-cameras .cam-tile[data-cam="03"]');
+  let cam03Busy = false;
+  if(cam03Tile){
+    cam03Tile.addEventListener('click', ()=>{
+      if(cam03Busy) return;
+      cam03Busy = true;
+      ensureAudio();
+      playJumpscareBurst();
+      const jp = document.getElementById('cam-jumpscare');
+      jp.classList.add('active');
+      setTimeout(()=>{
+        jp.classList.remove('active');
+        closeWin('win-cameras');
+        cam03Busy = false;
+      }, 650);
+    });
+  }
 })();
 
 // ---------- TELA OCIOSA ----------
@@ -2443,6 +2534,34 @@ function playStatic(duration=0.4){
   src.connect(g); g.connect(actx.destination);
   src.start();
   g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+duration);
+}
+function playJumpscareBurst(){
+  if(!actx || !soundOn) return;
+  const now = actx.currentTime;
+  // estouro de ruído áspero
+  const dur = 0.5;
+  const bufferSize = Math.floor(actx.sampleRate*dur);
+  const buffer = actx.createBuffer(1,bufferSize,actx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1); }
+  const src = actx.createBufferSource();
+  src.buffer = buffer;
+  const noiseGain = actx.createGain();
+  noiseGain.gain.setValueAtTime(0.45, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now+dur);
+  src.connect(noiseGain); noiseGain.connect(actx.destination);
+  src.start();
+  // "baque" grave descendente
+  const o = actx.createOscillator();
+  const og = actx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(180, now);
+  o.frequency.exponentialRampToValueAtTime(38, now+0.4);
+  og.gain.setValueAtTime(0.4, now);
+  og.gain.exponentialRampToValueAtTime(0.001, now+0.45);
+  o.connect(og); og.connect(actx.destination);
+  o.start();
+  o.stop(now+0.5);
 }
 document.addEventListener('pointerdown', ensureAudio, {once:true});
 document.addEventListener('keydown', ensureAudio, {once:true});
