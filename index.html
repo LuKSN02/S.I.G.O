@@ -351,6 +351,30 @@ hr.div{border:none;border-top:1px dashed var(--amber-dim);margin:12px 0;}
 .msg.left{margin-right:auto;background:#100d07;}
 .msg.right{margin-left:auto;background:#181209;border-color:var(--amber);text-align:right;}
 
+.msg-id-btn{
+  background:#1c1810;border:1px solid rgba(255,180,0,0.4);color:var(--amber);
+  font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 14px;cursor:pointer;
+}
+.msg-id-btn:hover{background:var(--win10-hover-strong);border-color:var(--amber);}
+#msg-status .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber-dim);margin-right:4px;}
+#msg-status.online .dot{background:var(--ok);}
+#msg-status.offline .dot{background:var(--danger);}
+#msg-inputbar{
+  display:flex;gap:6px;padding:8px 10px;border-top:1px solid rgba(255,180,0,0.2);
+  background:#0c0a06;flex-shrink:0;
+}
+#msg-input{
+  flex:1;min-width:0;background:#0b0904;border:1px solid var(--amber-dim);color:var(--amber);
+  font-family:'Share Tech Mono',monospace;font-size:12.5px;padding:7px 8px;
+}
+#msg-input:focus{outline:none;border-color:var(--amber);}
+#msg-send{
+  background:var(--amber-dim);border:none;color:#000;font-weight:bold;
+  font-family:'Share Tech Mono',monospace;font-size:12px;padding:0 14px;cursor:pointer;flex-shrink:0;
+}
+#msg-send:hover{background:var(--amber);}
+#msg-send:disabled{opacity:0.4;cursor:default;}
+
 /* Objetos / inventário */
 .item{margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed var(--amber-dim);}
 .item:last-child{border-bottom:none;}
@@ -1111,7 +1135,7 @@ body.win11 #desktop::before{
   </div>
 
   <!-- ===================== MENSAGENS ===================== -->
-  <div class="window win-terminal" id="win-mensagens" style="top:120px;left:640px;">
+  <div class="window win-terminal" id="win-mensagens" style="top:120px;left:640px;width:380px;">
     <div class="titlebar">
       <div class="tb-left"><span class="tb-icon">✉</span><span class="tb-title">MENSAGENS — CANAL INTERNO</span></div>
       <div class="tb-controls">
@@ -1120,15 +1144,23 @@ body.win11 #desktop::before{
         <span class="tb-btn close" data-close="win-mensagens">✕</span>
       </div>
     </div>
-    <div class="content">
-      <div class="msg left"><div class="who">OPERADOR_KAY</div>alguém mais leu o relatório da 041-Ω?</div>
-      <div class="msg right"><div class="who">OPERADOR_DIAS</div>li. não durmo direito desde então.</div>
-      <div class="msg left"><div class="who">OPERADOR_KAY</div>o Conselho vai enterrar isso de novo, não vai?</div>
-      <div class="msg right"><div class="who">OPERADOR_DIAS</div>já enterrou. protocolo 8112, igual sempre.</div>
-      <div class="msg left"><div class="who">OPERADOR_KAY</div>nem vou perguntar como você sabe esse número de cor.</div>
-      <div class="msg right"><div class="who">OPERADOR_DIAS</div>melhor não perguntar mesmo.</div>
-      <div class="msg left"><div class="who">OPERADOR_KAY</div>tem alguém digitando aqui agora e não sou eu.</div>
-      <div class="msg right"><div class="who">OPERADOR_DIAS</div>fecha essa janela. agora.</div>
+    <div class="content" style="display:flex;flex-direction:column;">
+      <div id="msg-identity-picker">
+        <p style="font-size:12px;color:var(--amber-dim);margin-top:0;">Canal restrito a dois operadores. Escolha sua identidade neste terminal:</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="msg-id-btn" data-id="OPERADOR_KAY">OPERADOR_KAY</button>
+          <button class="msg-id-btn" data-id="OPERADOR_DIAS">OPERADOR_DIAS</button>
+        </div>
+      </div>
+      <div id="msg-status" style="display:none;font-size:10.5px;color:var(--amber-dim);margin-bottom:8px;">
+        conectando ao canal... <span id="msg-status-val">—</span>
+        <span id="msg-switch" style="float:right;cursor:pointer;text-decoration:underline;">trocar identidade</span>
+      </div>
+      <div id="msg-log" style="display:none;flex:1;overflow-y:auto;"></div>
+    </div>
+    <div id="msg-inputbar" style="display:none;">
+      <input type="text" id="msg-input" placeholder="digitar mensagem..." maxlength="500">
+      <button id="msg-send">ENVIAR</button>
     </div>
   </div>
 
@@ -2645,6 +2677,135 @@ function initBlinkGame(){
   }
   requestAnimationFrame(loop);
 }
+
+// ---------- MENSAGENS — canal real entre 2 operadores (Firebase RTDB do projeto F.I.C.H.A., área separada) ----------
+(function(){
+  const FB_BASE = 'https://ficha-op-c9df8-default-rtdb.firebaseio.com';
+  const MSG_PATH = '/sigo_dashboard_mensagens'; // área própria, não interfere com o restante do F.I.C.H.A.
+  const IDS = ['OPERADOR_KAY','OPERADOR_DIAS'];
+
+  const picker   = document.getElementById('msg-identity-picker');
+  const statusEl = document.getElementById('msg-status');
+  const statusVal= document.getElementById('msg-status-val');
+  const switchBtn= document.getElementById('msg-switch');
+  const logEl    = document.getElementById('msg-log');
+  const inputBar = document.getElementById('msg-inputbar');
+  const inputEl  = document.getElementById('msg-input');
+  const sendBtn  = document.getElementById('msg-send');
+  if(!picker) return; // janela não presente nesta build
+
+  let store = {};
+  let es = null;
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function setStatus(state, label){
+    statusEl.className = state; // '', 'online', 'offline'
+    statusVal.innerHTML = '<span class="dot"></span>' + label;
+  }
+
+  function myId(){ return localStorage.getItem('sigo-msg-id'); }
+
+  function showChatUI(){
+    picker.style.display = 'none';
+    statusEl.style.display = 'block';
+    logEl.style.display = 'block';
+    inputBar.style.display = 'flex';
+  }
+
+  function renderMessages(){
+    if(logEl.style.display === 'none') return;
+    const me = myId();
+    const arr = Object.values(store || {}).filter(Boolean).sort((a,b)=>(a.ts||0)-(b.ts||0));
+    if(!arr.length){
+      logEl.innerHTML = '<p style="font-size:12px;color:var(--amber-dim);">nenhuma mensagem registrada neste canal ainda. seja o primeiro operador a transmitir.</p>';
+      return;
+    }
+    logEl.innerHTML = arr.map(m=>{
+      const side = (m.from===me) ? 'right' : 'left';
+      const time = m.ts ? new Date(m.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+      return `<div class="msg ${side}"><div class="who">${escapeHtml(m.from||'???')} <span style="opacity:.6;">${time}</span></div>${escapeHtml(m.text||'')}</div>`;
+    }).join('');
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function applyEvent(pathStr, data){
+    if(pathStr === '/'){
+      store = data || {};
+    } else {
+      const key = pathStr.split('/').filter(Boolean)[0];
+      if(!key) return;
+      if(data === null){ delete store[key]; }
+      else { store[key] = data; }
+    }
+    renderMessages();
+  }
+
+  function startStream(){
+    if(es) return;
+    try{
+      es = new EventSource(FB_BASE + MSG_PATH + '.json');
+      es.addEventListener('put', e=>{
+        try{ const d = JSON.parse(e.data); applyEvent(d.path, d.data); }catch(err){}
+        setStatus('online','CONECTADO');
+      });
+      es.addEventListener('patch', e=>{
+        try{ const d = JSON.parse(e.data); applyEvent(d.path, d.data); }catch(err){}
+      });
+      es.onopen = ()=> setStatus('online','CONECTADO');
+      es.onerror = ()=>{
+        setStatus('offline','SEM SINAL — verificando regras do banco...');
+      };
+    }catch(err){
+      setStatus('offline','FALHA AO CONECTAR');
+    }
+  }
+
+  function sendMessage(text){
+    const from = myId();
+    text = (text||'').trim();
+    if(!from || !text) return;
+    sendBtn.disabled = true;
+    fetch(FB_BASE + MSG_PATH + '.json', {
+      method:'POST',
+      body: JSON.stringify({from, text, ts: Date.now()})
+    }).catch(()=>{
+      pushToast('Sistema', 'Falha ao transmitir mensagem — verifique a conexão ou as regras do banco de dados.');
+    }).finally(()=>{ sendBtn.disabled = false; });
+  }
+
+  picker.querySelectorAll('.msg-id-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      localStorage.setItem('sigo-msg-id', btn.dataset.id);
+      showChatUI();
+      renderMessages();
+      startStream();
+    });
+  });
+
+  switchBtn.addEventListener('click', ()=>{
+    localStorage.removeItem('sigo-msg-id');
+    statusEl.style.display='none';
+    logEl.style.display='none';
+    inputBar.style.display='none';
+    picker.style.display='block';
+  });
+
+  sendBtn.addEventListener('click', ()=>{ sendMessage(inputEl.value); inputEl.value=''; inputEl.focus(); });
+  inputEl.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){ sendMessage(inputEl.value); inputEl.value=''; }
+  });
+
+  // se este terminal já escolheu identidade antes, pula direto pro chat
+  if(myId() && IDS.includes(myId())){
+    showChatUI();
+    startStream();
+  } else {
+    startStream(); // já começa a sincronizar em segundo plano, mesmo antes de escolher identidade
+  }
+})();
 </script>
 </body>
 </html>
