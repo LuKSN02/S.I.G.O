@@ -913,7 +913,9 @@ body.win11 #desktop::before{
   backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);
   display:flex;align-items:stretch;justify-content:space-between;
   z-index:600;
+  pointer-events:none; /* só os elementos de verdade dentro dela recebem clique */
 }
+#taskbar-center, #status{pointer-events:auto;}
 #taskbar-center{flex:0 0 auto;display:flex;align-items:stretch;}
 #start-btn{
   width:auto;padding:0 14px;display:flex;align-items:center;justify-content:center;
@@ -938,9 +940,13 @@ body.win11 #desktop::before{
 #show-desktop{display:none;} /* reaproveitado dentro do dock, ver abaixo */
 #taskbar-sep{display:none;}
 
-/* -------- dock lateral esquerdo (janelas abertas) -------- */
+/* -------- dock lateral esquerdo (janelas abertas) --------
+   importante: o dock não pode "bloquear" cliques nas janelas atrás dele.
+   por isso o próprio container fica pointer-events:none (área vazia é
+   transparente a cliques) e só os ícones de verdade reativam o clique. */
 #gnome-dock{
-  position:fixed;left:8px;top:calc(var(--gnome-bar-h) + 14px);bottom:14px;
+  position:fixed;left:8px;top:calc(var(--gnome-bar-h) + 14px);bottom:auto;
+  height:auto;max-height:calc(100vh - var(--gnome-bar-h) - 28px);
   width:var(--gnome-dock-w);z-index:590;
   display:flex;flex-direction:column;align-items:center;gap:8px;
   padding:10px 0;background:var(--gnome-dock-bg);
@@ -948,17 +954,19 @@ body.win11 #desktop::before{
   backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);
   box-shadow:0 10px 30px rgba(0,0,0,0.5);
   overflow-y:auto;overflow-x:hidden;
+  pointer-events:none;
 }
 #gnome-dock::-webkit-scrollbar{width:0;}
 #gnome-dock #taskbar-apps{
-  display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;
-  padding:0;overflow:visible;
+  display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 auto;
+  padding:0;overflow:visible;pointer-events:none;
 }
 #gnome-dock .tbar-app{
   width:46px;height:46px;min-width:0;max-width:none;padding:0;
   display:flex;align-items:center;justify-content:center;
   border-radius:var(--gnome-radius-sm);border-bottom:none;
   background:rgba(255,255,255,0.03);position:relative;
+  pointer-events:auto;
 }
 #gnome-dock .tbar-app .g{font-size:19px;}
 #gnome-dock .tbar-app .l{display:none;}
@@ -972,13 +980,19 @@ body.win11 #desktop::before{
 #gnome-dock .tbar-app.minimized{opacity:0.5;}
 #gnome-dock #taskbar-sep{
   display:block;width:70%;height:1px;background:var(--gnome-border);margin:2px 0;
+  pointer-events:none;flex-shrink:0;
 }
 #gnome-dock #show-desktop{
   display:flex;align-items:center;justify-content:center;
   width:40px;height:40px;border-radius:var(--gnome-radius-sm);
   color:var(--amber-dim);font-size:16px;border-left:none;flex-shrink:0;
+  pointer-events:auto;
 }
 #gnome-dock #show-desktop:hover{background:rgba(255,190,60,0.14);color:var(--amber);}
+/* quando o dock não tem nenhuma janela aberta nem separador visível,
+   ele encolhe para só o botão "mostrar área de trabalho" — nunca fica
+   uma faixa vazia grande tomando conta da lateral */
+#gnome-dock:has(#taskbar-apps:empty) #taskbar-sep{display:none;}
 
 /* -------- ícones da área de trabalho (grade estilo GNOME/Nautilus) -------- */
 .dash-grid{grid-template-columns:repeat(auto-fill, minmax(96px,1fr));gap:20px 6px;}
@@ -2122,22 +2136,31 @@ function refreshTaskbarStates(){
   });
 }
 
+// ---------- ÁREA ÚTIL DA TELA (respeita a barra superior e o dock, que agora ocupam topo/esquerda em vez de só embaixo) ----------
+function getWorkArea(){
+  const tb = document.getElementById('taskbar');
+  const dock = document.getElementById('gnome-dock');
+  const top = tb ? Math.ceil(tb.getBoundingClientRect().bottom) : 0;
+  const left = dock ? Math.ceil(dock.getBoundingClientRect().right) + 8 : 0;
+  return { top, left };
+}
+
 // ---------- AJUSTE DE POSIÇÃO À VIEWPORT (compatibilidade 800x600 etc) ----------
 function clampWinToViewport(win){
   if(!win || win.classList.contains('maximized')) return;
-  const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
+  const area = getWorkArea();
   const vw = window.innerWidth;
-  const vh = window.innerHeight - taskbarH;
+  const vh = window.innerHeight;
   const w = win.offsetWidth;
   const h = win.offsetHeight;
-  const maxLeft = Math.max(0, vw - w);
-  const maxTop = Math.max(0, vh - h);
+  const maxLeft = Math.max(area.left, vw - w);
+  const maxTop = Math.max(area.top, vh - h);
   let left = parseInt(win.style.left, 10);
   let top = parseInt(win.style.top, 10);
-  if(isNaN(left)) left = 0;
-  if(isNaN(top)) top = 0;
-  left = Math.min(Math.max(0, left), maxLeft);
-  top = Math.min(Math.max(0, top), maxTop);
+  if(isNaN(left)) left = area.left;
+  if(isNaN(top)) top = area.top;
+  left = Math.min(Math.max(area.left, left), maxLeft);
+  top = Math.min(Math.max(area.top, top), maxTop);
   win.style.left = left + 'px';
   win.style.top = top + 'px';
 }
@@ -2208,9 +2231,10 @@ function toggleMaximize(id){
     win.dataset.prevWidth = win.style.width;
     win.dataset.prevHeight = win.style.height || '';
     win.classList.add('maximized');
-    const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
-    win.style.top='0'; win.style.left='0';
-    win.style.width='100%'; win.style.height='calc(100% - '+taskbarH+'px)';
+    const area = getWorkArea();
+    win.style.top = area.top+'px'; win.style.left = area.left+'px';
+    win.style.width = 'calc(100% - '+area.left+'px)';
+    win.style.height = 'calc(100% - '+area.top+'px)';
   }
   focusWin(id);
 }
@@ -2240,11 +2264,11 @@ document.querySelectorAll('.window').forEach(win=>{
   });
   document.addEventListener('mousemove', (e)=>{
     if(!dragging) return;
-    const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
-    const maxLeft = Math.max(0, window.innerWidth - win.offsetWidth);
-    const maxTop = Math.max(0, window.innerHeight - taskbarH - win.offsetHeight);
-    win.style.left = Math.min(maxLeft, Math.max(0, e.clientX-offX)) + 'px';
-    win.style.top = Math.min(maxTop, Math.max(0, e.clientY-offY)) + 'px';
+    const area = getWorkArea();
+    const maxLeft = Math.max(area.left, window.innerWidth - win.offsetWidth);
+    const maxTop = Math.max(area.top, window.innerHeight - win.offsetHeight);
+    win.style.left = Math.min(maxLeft, Math.max(area.left, e.clientX-offX)) + 'px';
+    win.style.top = Math.min(maxTop, Math.max(area.top, e.clientY-offY)) + 'px';
   });
   document.addEventListener('mouseup', ()=> dragging=false);
   // touch support
@@ -2260,11 +2284,11 @@ document.querySelectorAll('.window').forEach(win=>{
   document.addEventListener('touchmove', (e)=>{
     if(!dragging) return;
     const t=e.touches[0];
-    const taskbarH = document.getElementById('taskbar').offsetHeight || 42;
-    const maxLeft = Math.max(0, window.innerWidth - win.offsetWidth);
-    const maxTop = Math.max(0, window.innerHeight - taskbarH - win.offsetHeight);
-    win.style.left = Math.min(maxLeft, Math.max(0, t.clientX-offX)) + 'px';
-    win.style.top = Math.min(maxTop, Math.max(0, t.clientY-offY)) + 'px';
+    const area = getWorkArea();
+    const maxLeft = Math.max(area.left, window.innerWidth - win.offsetWidth);
+    const maxTop = Math.max(area.top, window.innerHeight - win.offsetHeight);
+    win.style.left = Math.min(maxLeft, Math.max(area.left, t.clientX-offX)) + 'px';
+    win.style.top = Math.min(maxTop, Math.max(area.top, t.clientY-offY)) + 'px';
   });
   document.addEventListener('touchend', ()=> dragging=false);
 });
